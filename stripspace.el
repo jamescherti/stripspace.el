@@ -1,4 +1,4 @@
-;;; stripspace.el --- Auto remove trailing whitespace before saving a buffer -*- lexical-binding: t; -*-
+;;; stripspace.el --- Auto remove trailing whitespace and restore column -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2025 James Cherti | https://www.jamescherti.com/contact/
 
@@ -23,7 +23,15 @@
 ;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; Ensures that Emacs removes trailing whitespace before saving a buffer.
+;; The `stripspace.el' Emacs package offers `stripspace-local-mode', which
+;; ensures that trailing whitespace is removed before saving a buffer.
+;;
+;; Additionally, it provides an optional feature controlled by the
+;; `stripspace-restore-column` variable (disabled by default), which, when
+;; enabled, preserves the cursor's column position even after stripping spaces.
+;; This is useful in scenarios where you add extra spaces and then save the
+;; file. Although the spaces are removed in the saved file, the cursor remains
+;; in the same position, maintaining a consistent editing experience.
 
 ;;; Code:
 
