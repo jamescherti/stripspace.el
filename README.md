@@ -23,8 +23,8 @@ To install *stripspace* with `straight.el`:
              :repo "jamescherti/stripspace.el")
   :commands stripspace-local-mode
   ;; Enable for prog-mode and text-mode
-  :hooks ((prog-mode . stripspace-local-mode)
-          (text-mode . stripspace-local-mode))
+  :hook ((prog-mode . stripspace-local-mode)
+         (text-mode . stripspace-local-mode))
   :custom
   ;; Enabling `stripspace-restore-column' preserves the cursor's column position
   ;; even after stripping spaces. This is useful in scenarios where you add
@@ -45,8 +45,8 @@ To install *stripspace* with `use-package` and `:vc` (Emacs >= 30):
        :rev :newest)
   :commands stripspace-local-mode
   ;; Enable for prog-mode and text-mode
-  :hooks ((prog-mode . stripspace-local-mode)
-          (text-mode . stripspace-local-mode))
+  :hook ((prog-mode . stripspace-local-mode)
+         (text-mode . stripspace-local-mode))
   :custom
   ;; Enabling `stripspace-restore-column' preserves the cursor's column position
   ;; even after stripping spaces. This is useful in scenarios where you add
