@@ -26,12 +26,15 @@
 ;; The `stripspace.el' Emacs package offers `stripspace-local-mode', which
 ;; ensures that trailing whitespace is removed before saving a buffer.
 ;;
-;; Additionally, it provides an optional feature controlled by the
-;; `stripspace-restore-column` variable (disabled by default), which, when
+;; Additionally, The stripspace package offers an optional feature controlled by
+;; the `stripspace-restore-column' variable (disabled by default), which, when
 ;; enabled, preserves the cursor's column position even after stripping spaces.
-;; This is useful in scenarios where you add extra spaces and then save the
-;; file. Although the spaces are removed in the saved file, the cursor remains
-;; in the same position, maintaining a consistent editing experience.
+;; This is useful when extra spaces are added and the file is saved. While
+;; stripspace removes trailing whitespace from both the saved file and the
+;; currently edited buffer, it ensures that the spaces before the cursor on the
+;; current line remain unchanged. This maintains a consistent editing experience
+;; and prevents the cursor from shifting due to the removal of spaces from the
+;; current line, in addition to other lines.
 
 ;;; Code:
 
