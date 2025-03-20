@@ -1,4 +1,4 @@
-;;; stripspace.el --- Ensures that Emacs removes trailing whitespace before saving a buffer -*- lexical-binding: t; -*-
+;;; stripspace.el --- Auto remove trailing whitespace before saving a buffer -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2025 James Cherti | https://www.jamescherti.com/contact/
 

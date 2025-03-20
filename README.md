@@ -1,4 +1,4 @@
-# stripspace.el
+# stripspace.el - Ensure Emacs Automatically removes trailing whitespace before saving a buffer, with an option to preserve the cursor column
 ![License](https://img.shields.io/github/license/jamescherti/stripspace.el)
 ![](https://raw.githubusercontent.com/jamescherti/stripspace.el/main/.images/made-for-gnu-emacs.svg)
 
