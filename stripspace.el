@@ -49,9 +49,24 @@ compilation process, providing feedback on the compilation status."
   :type 'boolean
   :group 'stripspace)
 
+(defvar stripspace-before-save-hook-depth -99
+  "The `before-save-hook' hook depth for the function that saves the column.
+Using a negative depth close to -100 (e.g., -99) ensures that the function that
+saves the column is executed early in the `before-save-hook', before other
+functions, allowing column information to be saved before other modifications
+take place.")
+
+(defvar stripspace-after-save-hook-depth 99
+  "The `after-save-hook' hook depth for the function that restores the column.
+Using a positive depth close to 100 (e.g., 99) ensures that the function that
+restores the column is executed late in the `after-save-hook', after other
+functions, allowing the column restoration to occur last, once all other
+post-save processing has been completed.")
+
 ;;; Internal variables
 
-(defvar-local stripspace--column nil)
+(defvar-local stripspace--column nil
+  "Internal variable used to store the column position before saving.")
 
 ;;; Internal functions
 
@@ -96,13 +111,15 @@ marking the buffer as changed."
   "Toggle `stripspace-local-mode'.
 This mode ensures that trailing whitespace is removed before saving a buffer."
   :global t
-  :lighter " StripSpc"
+  :lighter " StripSPC"
   :group 'stripspace
   (if stripspace-local-mode
       (progn
         ;; Mode enabled
-        (add-hook 'before-save-hook #'stripspace--save-column -99 t)
-        (add-hook 'after-save-hook #'stripspace--move-to-saved-column 99 t))
+        (add-hook 'before-save-hook #'stripspace--save-column
+                  stripspace-before-save-hook-depth t)
+        (add-hook 'after-save-hook #'stripspace--move-to-saved-column
+                  stripspace-after-save-hook-depth t))
     ;; Mode disabled
     (remove-hook 'before-save-hook #'stripspace--save-column t)
     (remove-hook 'after-save-hook #'stripspace--move-to-saved-column t)))
