@@ -27,6 +27,8 @@
 
 ;;; Code:
 
+;;; Defgroup and defcustom
+
 (defgroup stripspace nil
   "Ensures that Emacs removes trailing whitespace before saving a buffer"
   :group 'stripspace
@@ -42,7 +44,16 @@ compilation process, providing feedback on the compilation status."
   :type 'boolean
   :group 'stripspace)
 
+(defcustom stripspace-restore-column nil
+  "Restore the column after deleting the trailing whitespace."
+  :type 'boolean
+  :group 'stripspace)
+
+;;; Internal variables
+
 (defvar-local stripspace--column nil)
+
+;;; Internal functions
 
 (defun stripspace--message (&rest args)
   "Display a message with the same ARGS arguments as `message'."
@@ -54,11 +65,6 @@ compilation process, providing feedback on the compilation status."
      (when stripspace-verbose
        (stripspace--message
         (concat "[stripspace] " ,(car args)) ,@(cdr args)))))
-
-(defcustom stripspace-restore-column t
-  "Restore the column after deleting the trailing whitespace."
-  :type 'boolean
-  :group 'stripspace)
 
 (defun stripspace--save-column ()
   "Save the current cursor column position and remove trailing whitespace.
@@ -82,6 +88,8 @@ marking the buffer as changed."
           ;; Prevent marking the buffer as modified
           (set-buffer-modified-p nil))
       (setq stripspace--column nil))))
+
+;;; Modes
 
 ;;;###autoload
 (define-minor-mode stripspace-local-mode
