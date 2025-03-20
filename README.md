@@ -4,13 +4,13 @@
 
 The `stripspace.el` Emacs package offers `stripspace-local-mode`, which ensures that trailing whitespace is removed before saving a buffer.
 
-Additionally, it provides an optional feature controlled by the `stripspace-restore-column` variable (disabled by default), which, when enabled, preserves the cursor's column position even after stripping spaces. This is useful in scenarios where you add extra spaces and then save the file—although the spaces are removed in the saved file, the cursor remains in the same position, maintaining a consistent editing experience.
+Additionally, it provides an optional feature controlled by the `stripspace-restore-column` variable (disabled by default), which, when enabled, preserves the cursor's column position even after stripping spaces. This is useful in scenarios where you add extra spaces and then save the file. Although the spaces are removed in the saved file, the cursor remains in the same position, maintaining a consistent editing experience.
 
 ## Installation
 
 ### Install with straight (Emacs version < 30)
 
-To install `stripspace` with `straight.el`:
+To install *stripspace* with `straight.el`:
 
 1. It if hasn't already been done, [add the straight.el bootstrap code](https://github.com/radian-software/straight.el?tab=readme-ov-file#getting-started) to your init file.
 2. Add the following code to the Emacs init file:
@@ -36,7 +36,7 @@ To install `stripspace` with `straight.el`:
 
 ### Installing with use-package and :vc (Built-in feature in Emacs version >= 30)
 
-To install `stripspace` with `use-package` and `:vc` (Emacs >= 30):
+To install *stripspace* with `use-package` and `:vc` (Emacs >= 30):
 
 ``` emacs-lisp
 (use-package stripspace
