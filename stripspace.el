@@ -56,7 +56,7 @@ compilation process, providing feedback on the compilation status."
   :group 'stripspace)
 
 (defcustom stripspace-restore-column nil
-  "Restore the column after deleting the trailing whitespace."
+  "Restore the cursor's column after deleting the trailing whitespace."
   :type 'boolean
   :group 'stripspace)
 
