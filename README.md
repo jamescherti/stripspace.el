@@ -2,7 +2,7 @@
 ![License](https://img.shields.io/github/license/jamescherti/stripspace.el)
 ![](https://raw.githubusercontent.com/jamescherti/stripspace.el/main/.images/made-for-gnu-emacs.svg)
 
-The `stripspace.el` Emacs package ensures that trailing whitespace is removed before saving a buffer.
+The `stripspace.el` Emacs package offers `stripspace-local-mode`, which ensures that trailing whitespace is removed before saving a buffer.
 
 Additionally, it provides an optional feature controlled by the `stripspace-restore-column` variable (disabled by default), which, when enabled, preserves the cursor's column position even after stripping spaces. This is useful in scenarios where you add extra spaces and then save the file—although the spaces are removed in the saved file, the cursor remains in the same position, maintaining a consistent editing experience.
 
@@ -21,6 +21,10 @@ To install `stripspace` with `straight.el`:
              :type git
              :host github
              :repo "jamescherti/stripspace.el")
+  :commands stripspace-local-mode
+  ;; Enable for prog-mode and text-mode
+  :hooks ((prog-mode . stripspace-local-mode)
+          (text-mode . stripspace-local-mode))
   :custom
   ;; Enabling `stripspace-restore-column' preserves the cursor's column position
   ;; even after stripping spaces. This is useful in scenarios where you add
@@ -39,6 +43,10 @@ To install `stripspace` with `use-package` and `:vc` (Emacs >= 30):
   :ensure t
   :vc (:url "https://github.com/jamescherti/stripspace.el"
        :rev :newest)
+  :commands stripspace-local-mode
+  ;; Enable for prog-mode and text-mode
+  :hooks ((prog-mode . stripspace-local-mode)
+          (text-mode . stripspace-local-mode))
   :custom
   ;; Enabling `stripspace-restore-column' preserves the cursor's column position
   ;; even after stripping spaces. This is useful in scenarios where you add

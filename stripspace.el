@@ -6,7 +6,7 @@
 ;; Version: 0.9.9
 ;; URL: https://github.com/jamescherti/stripspace.el
 ;; Keywords: convenience
-;; Package-Requires: ((emacs "24.1"))
+;; Package-Requires: ((emacs "24.3"))
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -42,11 +42,7 @@ compilation process, providing feedback on the compilation status."
   :type 'boolean
   :group 'stripspace)
 
-(defcustom stripspace-debug nil
-  "Non-nil to display debug messages in the *stripspace:debug* buffer.
-This displays a lot of messages."
-  :type 'boolean
-  :group 'stripspace)
+(defvar-local stripspace--column nil)
 
 (defun stripspace--message (&rest args)
   "Display a message with the same ARGS arguments as `message'."
@@ -55,28 +51,53 @@ This displays a lot of messages."
 (defmacro stripspace--verbose-message (&rest args)
   "Display a verbose message with the same ARGS arguments as `message'."
   `(progn
-     (when stripspace-debug
-       (stripspace--debug-message ,(car args) ,@(cdr args)))
      (when stripspace-verbose
        (stripspace--message
         (concat "[stripspace] " ,(car args)) ,@(cdr args)))))
 
-(defmacro stripspace--debug-message (&rest args)
-  "Display a debug message with the same ARGS arguments as `message'.
-The messages are displayed in the *stripspace* buffer."
-  `(when stripspace-debug
-     (stripspace--insert-message "*stripspace:debug*"
-                                                    ,(car args) ,@(cdr args))))
+(defcustom stripspace-restore-column t
+  "Restore the column after deleting the trailing whitespace."
+  :type 'boolean
+  :group 'stripspace)
+
+(defun stripspace--save-column ()
+  "Save the current cursor column position and remove trailing whitespace.
+This function is triggered by `before-save-hook'. It stores the current column
+in a buffer-local variable and deletes any trailing whitespace."
+  (setq stripspace--column (current-column))
+  (delete-trailing-whitespace))
+
+(defun stripspace--move-to-saved-column ()
+  "Restore the cursor to the previously saved column after saving.
+This function is triggered by `after-save-hook'. It attempts to move the cursor
+back to its original column while ensuring the buffer remains unmodified.
+Restoring trailing whitespace is only done to maintain cursor position without
+marking the buffer as changed."
+  (when stripspace-restore-column
+    (unwind-protect
+        (progn
+          (when stripspace--column
+            ;; Restore the column position, adding spaces if necessary
+            (move-to-column stripspace--column t))
+          ;; Prevent marking the buffer as modified
+          (set-buffer-modified-p nil))
+      (setq stripspace--column nil))))
 
 ;;;###autoload
-(define-minor-mode stripspace-mode
-  "Toggle `stripspace-mode'."
+(define-minor-mode stripspace-local-mode
+  "Toggle `stripspace-local-mode'.
+This mode ensures that trailing whitespace is removed before saving a buffer."
   :global t
-  :lighter " stripspace"
+  :lighter " StripSpc"
   :group 'stripspace
-  (if stripspace-mode
-      t
-    t))
+  (if stripspace-local-mode
+      (progn
+        ;; Mode enabled
+        (add-hook 'before-save-hook #'stripspace--save-column -99 t)
+        (add-hook 'after-save-hook #'stripspace--move-to-saved-column 99 t))
+    ;; Mode disabled
+    (remove-hook 'before-save-hook #'stripspace--save-column t)
+    (remove-hook 'after-save-hook #'stripspace--move-to-saved-column t)))
 
 (provide 'stripspace)
 ;;; stripspace.el ends here
