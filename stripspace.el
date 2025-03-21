@@ -38,7 +38,7 @@
 
 ;;; Code:
 
-;;; Defgroup and defcustom
+;;; Defcustom
 
 (defgroup stripspace nil
   "Ensures that Emacs removes trailing whitespace before saving a buffer"
@@ -59,6 +59,8 @@ compilation process, providing feedback on the compilation status."
   "Restore the cursor's column after deleting the trailing whitespace."
   :type 'boolean
   :group 'stripspace)
+
+;;; Variables
 
 (defvar stripspace-before-save-hook-depth -99
   "Depth for the hook that removes trailing whitespace in `before-save-hook'.
