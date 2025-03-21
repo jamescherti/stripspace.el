@@ -11,6 +11,13 @@ Additionally, The *stripspace* package offers an optional feature controlled by 
 
 This ensures a consistent editing experience and prevents unintended cursor movement when saving a buffer and removing trailing whitespace.
 
+## How does stripspace restore spaces before the column?
+
+Stripspace achieves this with a two-step approach, which is necessary because certain packages modify the buffer before and after saving:
+
+1. **Before saving**: stripspace runs a function late in `before-save-hook` that saves the current cursor column and removes trailing whitespace. *(Running this function late in `before-save-hook` ensures that the column information is saved only after all other modifications have been made. For example, the Reformatter package, which reformats buffers, runs during `before-save-hook`. Running stripspace afterward ensures that the column is saved only after reformatting is complete.*)
+2. **After saving**: stripspace runs another function late in `after-save-hook` to restore the saved column position. *(Running this function late in `before-save-hook` ensures that the column information is saved only after all other modifications have been made. For example, the Reformatter package, which reformats buffers, runs during `before-save-hook`. Running stripspace afterward ensures that the column is saved only after reformatting is complete.*)
+
 ## Installation
 
 ### Install with straight (Emacs version < 30)

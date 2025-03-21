@@ -60,19 +60,29 @@ compilation process, providing feedback on the compilation status."
   :type 'boolean
   :group 'stripspace)
 
-(defvar stripspace-before-save-hook-depth -99
-  "The `before-save-hook' hook depth for the function that saves the column.
-Using a negative depth close to -100 (e.g., -99) ensures that the function that
-saves the column is executed early in the `before-save-hook', before other
-functions, allowing column information to be saved before other modifications
-take place.")
+(defvar stripspace-before-save-hook-depth 99
+  "Depth for the hook that removes trailing whitespace in `before-save-hook'.
+A positive depth close to 100 (e.g., 99) ensures that this function runs late in
+`before-save-hook', allowing other modifications to occur first.
+
+Additionally, `before-save-hook' saves the current column position, which is
+later restored in `after-save-hook' when `stripspace-restore-column' is non-nil.
+
+Running this function late in `before-save-hook' ensures that the column
+information is saved only after all other modifications have been made.
+
+For example, the Reformatter package, which reformats buffers, runs during
+`before-save-hook'. Running stripspace afterward ensures that the column is
+saved only after reformatting is complete.")
 
 (defvar stripspace-after-save-hook-depth 99
-  "The `after-save-hook' hook depth for the function that restores the column.
-Using a positive depth close to 100 (e.g., 99) ensures that the function that
-restores the column is executed late in the `after-save-hook', after other
-functions, allowing the column restoration to occur last, once all other
-post-save processing has been completed.")
+  "Depth for the hook that restores the cursor column in `after-save-hook'.
+A positive depth close to 100 (e.g., 99) ensures that this function runs late,
+allowing column restoration to occur after all other post-save processing.
+
+For example, the Apheleia package, which reformats buffers, runs during
+`after-save-hook'. Running stripspace after it ensures that the column is
+restored after reformatting has been completed.")
 
 ;;; Internal variables
 
