@@ -131,7 +131,7 @@ marking the buffer as changed."
 (define-minor-mode stripspace-local-mode
   "Toggle `stripspace-local-mode'.
 This mode ensures that trailing whitespace is removed before saving a buffer."
-  :global t
+  :global nil
   :lighter " StripSPC"
   :group 'stripspace
   (if stripspace-local-mode
