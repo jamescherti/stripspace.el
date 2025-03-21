@@ -5,9 +5,11 @@
 
 The **stripspace** Emacs package offers `stripspace-local-mode`, which ensures that trailing whitespace is removed before saving a buffer.
 
-Additionally, The *stripspace* package offers an optional feature controlled by the `stripspace-restore-column` variable (disabled by default), which, when enabled, preserves the cursor's column position even after stripping spaces. This is useful when extra spaces are added and the file is saved. While *stripspace* removes trailing whitespace from both the saved file and the currently edited buffer, it ensures that the spaces before the cursor on the current line remain unchanged. This maintains a consistent editing experience and prevents the cursor from shifting due to the removal of spaces from the current line, in addition to other lines.
+Additionally, The *stripspace* package offers an optional feature controlled by the `stripspace-restore-column` variable (disabled by default), which, when enabled, preserves the cursor's column position even after stripping spaces. This is useful when extra spaces are added and the file is saved:
+- Saved file: Ensures that all trailing whitespace is removed.
+- Currently edited file: Removes trailing whitespace everywhere but restores the cursor's column position on the current line. This maintains a consistent editing experience and prevents the cursor from shifting due to space removal on the current line, as well as other lines.
 
-(It uses `before-save-hook` to save the column and delete trailing whitespace, and `after-save-hook` to restore the column. This two-step approach is necessary because packages like Apheleia or Reformatter may modify the buffer before and after saving. Trailing whitespace should be deleted after all such functions have executed.)
+(This is how stripspace achieves this: It uses `before-save-hook` to save the column and delete trailing whitespace, and `after-save-hook` to restore the column. This two-step approach is necessary because packages like Apheleia or Reformatter may modify the buffer before and after saving. Trailing whitespace should be deleted after all such functions have executed.)
 
 ## Installation
 
