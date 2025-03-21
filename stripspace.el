@@ -66,7 +66,18 @@ Trailing blank lines are empty lines at the end of the file."
   :type 'boolean
   :group 'stripspace)
 
+(defcustom stripspace-only-if-initially-clean nil
+  "Non-nil to only delete whitespace when the buffer is clean initially.
+The initial cleanliness check is performed when `stripspace-local-mode' is
+enabled."
+  :group 'stripspace
+  :type 'boolean)
+
 ;;; Variables
+
+(defvar-local stripspace--clean 'undefined
+  "Indicates whether the buffer contains no trailing whitespace.
+This variable is used to track the state of trailing whitespace in the buffer.")
 
 (defvar stripspace-before-save-hook-depth -99
   "Depth for the hook that removes trailing whitespace in `before-save-hook'.
@@ -110,13 +121,23 @@ restored after reformatting has been completed.")
        (stripspace--message
         (concat "[stripspace] " ,(car args)) ,@(cdr args)))))
 
+(defun stripspace--delete-trailing-whitespace ()
+  "Delete trailing whitespace."
+  (if stripspace-only-if-initially-clean
+      (when (eq stripspace--clean 'undefined)
+        (setq stripspace--clean (stripspace--clean-p)))
+    (setq stripspace--clean t))
+
+  (when stripspace--clean
+    (let ((delete-trailing-lines stripspace-delete-trailing-lines))
+      (delete-trailing-whitespace))))
+
 (defun stripspace--save-column ()
   "Save the current cursor column position and remove trailing whitespace.
 This function is triggered by `before-save-hook'. It stores the current column
 in a buffer-local variable and deletes any trailing whitespace."
   (setq stripspace--column (current-column))
-  (let ((delete-trailing-lines stripspace-delete-trailing-lines))
-    (delete-trailing-whitespace)))
+  (stripspace--delete-trailing-whitespace))
 
 (defun stripspace--move-to-saved-column ()
   "Restore the cursor to the previously saved column after saving.
@@ -133,6 +154,15 @@ marking the buffer as changed."
           ;; Prevent marking the buffer as modified
           (set-buffer-modified-p nil))
       (setq stripspace--column nil))))
+
+(defun stripspace--clean-p ()
+  "Return t if the the trailing whitespace has already been deleted."
+  (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
+    (with-temp-buffer
+      (insert contents)
+      (set-buffer-modified-p nil)
+      (stripspace--delete-trailing-whitespace)
+      (not (buffer-modified-p)))))
 
 ;;; Modes
 

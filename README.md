@@ -12,7 +12,8 @@ The **stripspace** Emacs package offers `stripspace-local-mode`, which ensures t
 ## Features
 
 - Automatically removes trailing whitespace before saving buffers.
-- An optional feature controlled by the `stripspace-restore-column` variable (disabled by default), which, when enabled, preserves the cursor's column position even after stripping spaces. This is useful when extra spaces are added and the file is saved:
+- An optional feature `stripspace-only-if-initially-clean` (disabled by default), which, when set to non-nil, instructs stripspace to only delete whitespace when the buffer is clean initially.
+- An optional feature controlled by the `stripspace-restore-column` variable (disabled by default), which, when set to non-nil, preserves the cursor's column position even after stripping spaces. This is useful when extra spaces are added and the file is saved:
   - Saved file: Removes all trailing whitespace.
   - Currently edited file (buffer): Removes all trailing whitespace but **preserves the cursor's column position on the current line, including any spaces before the cursor**.
   This ensures a consistent editing experience and prevents unintended cursor movement when saving a buffer and removing trailing whitespace.
