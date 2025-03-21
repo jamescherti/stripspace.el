@@ -97,7 +97,7 @@ post-save processing has been completed.")
 This function is triggered by `before-save-hook'. It stores the current column
 in a buffer-local variable and deletes any trailing whitespace."
   (setq stripspace--column (current-column))
-  (delete-trailing-whitespace))
+  (whitespace-cleanup))
 
 (defun stripspace--move-to-saved-column ()
   "Restore the cursor to the previously saved column after saving.
