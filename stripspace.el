@@ -60,6 +60,12 @@ compilation process, providing feedback on the compilation status."
   :type 'boolean
   :group 'stripspace)
 
+(defcustom stripspace-delete-trailing-lines t
+  "If non-nil, `stripspace-local-mode` will also remove trailing blank lines.
+Trailing blank lines are empty lines at the end of the file."
+  :type 'boolean
+  :group 'stripspace)
+
 ;;; Variables
 
 (defvar stripspace-before-save-hook-depth -99
@@ -109,7 +115,8 @@ restored after reformatting has been completed.")
 This function is triggered by `before-save-hook'. It stores the current column
 in a buffer-local variable and deletes any trailing whitespace."
   (setq stripspace--column (current-column))
-  (delete-trailing-whitespace))
+  (let ((delete-trailing-lines stripspace-delete-trailing-lines))
+    (delete-trailing-whitespace)))
 
 (defun stripspace--move-to-saved-column ()
   "Restore the cursor to the previously saved column after saving.
