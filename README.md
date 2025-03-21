@@ -3,13 +3,19 @@
 ![License](https://img.shields.io/github/license/jamescherti/stripspace.el)
 ![](https://raw.githubusercontent.com/jamescherti/stripspace.el/main/.images/made-for-gnu-emacs.svg)
 
+## Introduction
+
 The **stripspace** Emacs package offers `stripspace-local-mode`, which ensures that trailing whitespace is removed when saving a buffer.
 
-Additionally, The *stripspace* package offers an optional feature controlled by the `stripspace-restore-column` variable (disabled by default), which, when enabled, preserves the cursor's column position even after stripping spaces. This is useful when extra spaces are added and the file is saved:
-- Saved file: Removes all trailing whitespace.
-- Currently edited file (buffer): Removes all trailing whitespace but **preserves the cursor's column position on the current line, including any spaces before the cursor**.
+**Trailing whitespace** refers to any spaces or tabs that appear at the end of a line, beyond the last non-whitespace character. These characters serve no purpose in the content of the file and can cause issues with version control, formatting, or code consistency. Removing trailing whitespace helps maintain clean, readable files.
 
-This ensures a consistent editing experience and prevents unintended cursor movement when saving a buffer and removing trailing whitespace.
+## Features
+
+- Automatically removes trailing whitespace before saving buffers.
+- An optional feature controlled by the `stripspace-restore-column` variable (disabled by default), which, when enabled, preserves the cursor's column position even after stripping spaces. This is useful when extra spaces are added and the file is saved:
+  - Saved file: Removes all trailing whitespace.
+  - Currently edited file (buffer): Removes all trailing whitespace but **preserves the cursor's column position on the current line, including any spaces before the cursor**.
+  This ensures a consistent editing experience and prevents unintended cursor movement when saving a buffer and removing trailing whitespace.
 
 ## How does stripspace restore spaces before the column?
 
