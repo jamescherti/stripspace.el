@@ -3,11 +3,11 @@
 ![License](https://img.shields.io/github/license/jamescherti/stripspace.el)
 ![](https://raw.githubusercontent.com/jamescherti/stripspace.el/main/.images/made-for-gnu-emacs.svg)
 
-The **stripspace** Emacs package offers `stripspace-local-mode`, which ensures that trailing whitespace is removed before saving a buffer.
+The **stripspace** Emacs package offers `stripspace-local-mode`, which ensures that trailing whitespace is removed when saving a buffer.
 
 Additionally, The *stripspace* package offers an optional feature controlled by the `stripspace-restore-column` variable (disabled by default), which, when enabled, preserves the cursor's column position even after stripping spaces. This is useful when extra spaces are added and the file is saved:
-- Saved file: Ensures that all trailing whitespace is removed.
-- Currently edited file: Removes trailing whitespace everywhere but restores the cursor's column position on the current line. This maintains a consistent editing experience and prevents the cursor from shifting due to space removal on the current line, as well as other lines.
+- Saved file: Removes all trailing whitespace.
+- Currently edited file: Removes all trailing whitespace but **restores the cursor's column position on the current line**. This ensures a consistent editing experience and prevents the cursor from shifting due to space removal on the current line and other lines.
 
 (This is how stripspace achieves this: It uses `before-save-hook` to save the column and delete trailing whitespace, and `after-save-hook` to restore the column. This two-step approach is necessary because packages like Apheleia or Reformatter may modify the buffer before and after saving. Trailing whitespace should be deleted after all such functions have executed.)
 
