@@ -7,7 +7,7 @@ The **stripspace** Emacs package offers `stripspace-local-mode`, which ensures t
 
 Additionally, The *stripspace* package offers an optional feature controlled by the `stripspace-restore-column` variable (disabled by default), which, when enabled, preserves the cursor's column position even after stripping spaces. This is useful when extra spaces are added and the file is saved. While *stripspace* removes trailing whitespace from both the saved file and the currently edited buffer, it ensures that the spaces before the cursor on the current line remain unchanged. This maintains a consistent editing experience and prevents the cursor from shifting due to the removal of spaces from the current line, in addition to other lines.
 
-(It uses `before-save-hook` to save the column and `after-save-hook` to restore it. This two-step approach is necessary because packages like Apheleia or reformatter may modify the buffer before and after saving. Deleting trailing whitespace should be done after all such functions have executed.)
+(It uses `before-save-hook` to save the column and delete trailing whitespace, and `after-save-hook` to restore the column. This two-step approach is necessary because packages like Apheleia or Reformatter may modify the buffer before and after saving. Trailing whitespace should be deleted after all such functions have executed.)
 
 ## Installation
 
