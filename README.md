@@ -9,7 +9,7 @@ Additionally, The *stripspace* package offers an optional feature controlled by 
 - Saved file: Removes all trailing whitespace.
 - Currently edited file (buffer): Removes all trailing whitespace but **preserves the cursor's column position on the current line, including any spaces before the cursor**. This ensures a consistent editing experience and prevents unintended cursor movement when saving a buffer and removing trailing whitespace.
 
-(This is how stripspace achieves this: It uses `before-save-hook` to save the column and delete trailing whitespace, and `after-save-hook` to restore the column. This two-step approach is necessary because packages like Apheleia or Reformatter may modify the buffer before and after saving. Trailing whitespace should be deleted after all such functions have executed.)
+*(This is how stripspace achieves this: It uses `before-save-hook` to save the column and delete trailing whitespace, and `after-save-hook` to restore the column. This two-step approach is necessary because packages like Apheleia or Reformatter may modify the buffer before and after saving. Trailing whitespace should be deleted after all such functions have executed.)*
 
 ## Installation
 
