@@ -60,20 +60,20 @@ compilation process, providing feedback on the compilation status."
   :type 'boolean
   :group 'stripspace)
 
-(defvar stripspace-before-save-hook-depth 99
+(defvar stripspace-before-save-hook-depth -99
   "Depth for the hook that removes trailing whitespace in `before-save-hook'.
-A positive depth close to 100 (e.g., 99) ensures that this function runs late in
-`before-save-hook', allowing other modifications to occur first.
+A negative depth close to -100 (e.g., -99) ensures that this function runs early
+in `before-save-hook', allowing other modifications to occur first.
 
 Additionally, `before-save-hook' saves the current column position, which is
 later restored in `after-save-hook' when `stripspace-restore-column' is non-nil.
 
-Running this function late in `before-save-hook' ensures that the column
-information is saved only after all other modifications have been made.
+Running this function early in `before-save-hook' ensures that the column
+information is saved before all other modifications have been made.
 
 For example, the Reformatter package, which reformats buffers, runs during
-`before-save-hook'. Running stripspace afterward ensures that the column is
-saved only after reformatting is complete.")
+`before-save-hook'. Running stripspace beforehand ensures that the column is
+saved before reformatting is applied.")
 
 (defvar stripspace-after-save-hook-depth 99
   "Depth for the hook that restores the cursor column in `after-save-hook'.
