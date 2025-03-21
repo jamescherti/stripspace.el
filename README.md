@@ -27,8 +27,6 @@ To install *stripspace* with `straight.el`:
   :hook ((prog-mode . stripspace-local-mode)
          (text-mode . stripspace-local-mode))
   :custom
-  ;; Remove trailing lines in addition to trailing whitespace.
-  (delete-trailing-lines t)
   ;; Enabling `stripspace-restore-column' preserves the cursor's column position
   ;; even after stripping spaces. This is useful in scenarios where you add
   ;; extra spaces and then save the file. Although the spaces are removed in the
@@ -51,8 +49,6 @@ To install *stripspace* with `use-package` and `:vc` (Emacs >= 30):
   :hook ((prog-mode . stripspace-local-mode)
          (text-mode . stripspace-local-mode))
   :custom
-  ;; Remove trailing lines in addition to trailing whitespace.
-  (delete-trailing-lines t)
   ;; Enabling `stripspace-restore-column' preserves the cursor's column position
   ;; even after stripping spaces. This is useful in scenarios where you add
   ;; extra spaces and then save the file. Although the spaces are removed in the
