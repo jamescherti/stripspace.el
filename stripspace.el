@@ -25,16 +25,6 @@
 ;;; Commentary:
 ;; The `stripspace.el' Emacs package offers `stripspace-local-mode', which
 ;; ensures that trailing whitespace is removed before saving a buffer.
-;;
-;; Additionally, The stripspace package offers an optional feature controlled by
-;; the `stripspace-restore-column' variable (disabled by default), which, when
-;; enabled, preserves the cursor's column position even after stripping spaces.
-;; This is useful when extra spaces are added and the file is saved. While
-;; stripspace removes trailing whitespace from both the saved file and the
-;; currently edited buffer, it ensures that the spaces before the cursor on the
-;; current line remain unchanged. This maintains a consistent editing experience
-;; and prevents the cursor from shifting due to the removal of spaces from the
-;; current line, in addition to other lines.
 
 ;;; Code:
 
@@ -60,12 +50,6 @@ compilation process, providing feedback on the compilation status."
   :type 'boolean
   :group 'stripspace)
 
-(defcustom stripspace-delete-trailing-lines t
-  "If non-nil, `stripspace-local-mode` will also remove trailing blank lines.
-Trailing blank lines are empty lines at the end of the file."
-  :type 'boolean
-  :group 'stripspace)
-
 (defcustom stripspace-only-if-initially-clean nil
   "Non-nil to only delete whitespace when the buffer is clean initially.
 The initial cleanliness check is performed when `stripspace-local-mode' is
@@ -73,11 +57,16 @@ enabled."
   :type 'boolean
   :group 'stripspace)
 
-;;; Variables
+;;; Internal Variables
 
-(defvar-local stripspace--clean 'undefined
-  "Indicates whether the buffer contains no trailing whitespace.
-This variable is used to track the state of trailing whitespace in the buffer.")
+(defvar stripspace-function #'delete-trailing-whitespace
+  "A function used to delete trailing whitespace from the current buffer.
+This function is invoked to remove any extra spaces or tabs at the end of
+lines.
+
+Possible functions:
+- `delete-trailing-whitespace' (default)
+- `whitespace-cleanup'")
 
 (defvar stripspace-before-save-hook-depth -99
   "Depth for the hook that removes trailing whitespace in `before-save-hook'.
@@ -105,6 +94,10 @@ restored after reformatting has been completed.")
 
 ;;; Internal variables
 
+(defvar-local stripspace--clean 'undefined
+  "Indicates whether the buffer contains no trailing whitespace.
+This variable is used to track the state of trailing whitespace in the buffer.")
+
 (defvar-local stripspace--column nil
   "Internal variable used to store the column position before saving.")
 
@@ -121,18 +114,13 @@ restored after reformatting has been completed.")
        (stripspace--message
         (concat "[stripspace] " ,(car args)) ,@(cdr args)))))
 
-(defun stripspace--delete-trailing-whitespace ()
-  "Delete trailing whitespace."
-  (let ((delete-trailing-lines stripspace-delete-trailing-lines))
-    (delete-trailing-whitespace)))
-
 (defun stripspace--clean-p ()
   "Return t if the the trailing whitespace has already been deleted."
   (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
     (with-temp-buffer
       (insert contents)
       (set-buffer-modified-p nil)
-      (stripspace--delete-trailing-whitespace)
+      (funcall stripspace-function)
       (not (buffer-modified-p)))))
 
 (defun stripspace--delete-trailing-whitespace-maybe ()
@@ -143,7 +131,7 @@ restored after reformatting has been completed.")
         (setq stripspace--clean (stripspace--clean-p)))
       (setq delete-trailing-whitespace (eq stripspace--clean t)))
     (when delete-trailing-whitespace
-      (stripspace--delete-trailing-whitespace))))
+      (funcall stripspace-function))))
 
 (defun stripspace--before-save-hook ()
   "Save the current cursor column position and remove trailing whitespace.
