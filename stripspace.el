@@ -28,7 +28,7 @@
 
 ;;; Code:
 
-;;; Defcustom
+;;; Customizations
 
 (defgroup stripspace nil
   "Ensures that Emacs removes trailing whitespace before saving a buffer"
@@ -59,14 +59,17 @@ Change it to nil to always delete whitespace."
   :type 'boolean
   :group 'stripspace)
 
-;;; Internal Variables
-
-(defvar stripspace-clean-function #'delete-trailing-whitespace
-  "A function used to remove trailing whitespace from the current buffer.
+(defcustom stripspace-clean-function #'delete-trailing-whitespace
+  "Function used to remove trailing whitespace from the current buffer.
 This function is invoked to eliminate any extraneous spaces or tabs at the end
-of lines. Here are some alternative functions:
-- `my-delete-trailing-whitespace'
-- `my-whitespace-cleanup'")
+of lines.
+Alternative functions include:
+- `delete-trailing-whitespace' (default)
+- `whitespace-cleanup'."
+  :type 'function
+  :group 'stripspace)
+
+;;; Variables
 
 (defvar stripspace-before-save-hook-depth -99
   "Depth for the hook that removes trailing whitespace in `before-save-hook'.
