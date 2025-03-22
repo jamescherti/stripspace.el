@@ -183,7 +183,10 @@ This mode ensures that trailing whitespace is removed before saving a buffer."
       (progn
         (when stripspace-only-if-initially-clean
           (when (eq stripspace--clean 'undefined)
-            (setq stripspace--clean (stripspace--clean-p))))
+            (setq stripspace--clean (stripspace--clean-p))
+            (unless stripspace--clean
+              (stripspace--verbose-message
+               "This buffer is not clean: %s" (buffer-name)))))
 
         ;; Mode enabled
         (add-hook 'before-save-hook #'stripspace--before-save-hook
