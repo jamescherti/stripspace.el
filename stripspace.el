@@ -39,9 +39,10 @@
           "https://github.com/jamescherti/stripspace.el"))
 
 (defcustom stripspace-verbose nil
-  "Enable displaying messages (e.g., when files are compiled).
-When set to non-nil, this option will cause messages to be shown during the
-compilation process, providing feedback on the compilation status."
+  "Enable displaying verbose messages.
+When non-nil, display in the minibuffer whether trailing whitespaces have been
+removed and, if not, the reason for their retention (e.g., the buffer was not
+clean)."
   :type 'boolean
   :group 'stripspace)
 
@@ -110,7 +111,13 @@ This variable is used to track the state of trailing whitespace in the buffer.")
   `(progn
      (when stripspace-verbose
        (stripspace--message
-        (concat "[stripspace] " ,(car args)) ,@(cdr args)))))
+        (concat ,(car args)) ,@(cdr args)))))
+
+(defun stripspace-clean ()
+  "Delete trailing whitespace in the current buffer."
+  (interactive)
+  (funcall stripspace-function)
+  (setq stripspace--clean t))
 
 (defun stripspace--clean-p ()
   "Return t if the the trailing whitespace has already been deleted."
@@ -118,18 +125,17 @@ This variable is used to track the state of trailing whitespace in the buffer.")
     (with-temp-buffer
       (insert contents)
       (set-buffer-modified-p nil)
-      (funcall stripspace-function)
+      (stripspace-clean)
       (not (buffer-modified-p)))))
 
 (defun stripspace--delete-trailing-whitespace-maybe ()
   "Delete trailing whitespace, maybe."
   (let ((delete-trailing-whitespace t))
-    (when stripspace-only-if-initially-clean
-      (when (eq stripspace--clean 'undefined)
-        (setq stripspace--clean (stripspace--clean-p)))
-      (setq delete-trailing-whitespace (eq stripspace--clean t)))
+    (when (and stripspace-only-if-initially-clean
+               (not (eq stripspace--clean t)))
+      (setq delete-trailing-whitespace nil))
     (when delete-trailing-whitespace
-      (funcall stripspace-function))))
+      (stripspace-clean))))
 
 (defun stripspace--before-save-hook ()
   "Save the current cursor column position and remove trailing whitespace.
@@ -152,7 +158,16 @@ marking the buffer as changed."
             (move-to-column stripspace--column t))
           ;; Prevent marking the buffer as modified
           (set-buffer-modified-p nil))
-      (setq stripspace--column nil))))
+      (setq stripspace--column nil)))
+  (stripspace--verbose-message
+   "%s"
+   (cond
+    ((eq stripspace--clean 'undefined)
+     (format "Run: %s" stripspace-function))
+    (stripspace--clean
+     (format "Run: %s" stripspace-function))
+    (t
+     (format "Ignored (not clean)")))))
 
 ;;; Modes
 
@@ -165,6 +180,10 @@ This mode ensures that trailing whitespace is removed before saving a buffer."
   :group 'stripspace
   (if stripspace-local-mode
       (progn
+        (when stripspace-only-if-initially-clean
+          (when (eq stripspace--clean 'undefined)
+            (setq stripspace--clean (stripspace--clean-p))))
+
         ;; Mode enabled
         (add-hook 'before-save-hook #'stripspace--before-save-hook
                   stripspace-before-save-hook-depth t)
