@@ -59,7 +59,7 @@ Change it to nil to always delete whitespace."
   :type 'boolean
   :group 'stripspace)
 
-(defcustom stripspace-clean-function #'delete-trailing-whitespace
+(defcustom stripspace-clean-function 'delete-trailing-whitespace
   "Function used to remove trailing whitespace from the current buffer.
 This function is invoked to eliminate any extraneous spaces or tabs at the end
 of lines.
@@ -120,25 +120,54 @@ This variable is used to track the state of trailing whitespace in the buffer.")
 (defun stripspace-clean ()
   "Delete trailing whitespace in the current buffer."
   (interactive)
-  (funcall stripspace-clean-function)
+  (save-excursion
+    (widen)
+    (funcall stripspace-clean-function))
   (setq stripspace--clean t))
+
+(defun stripspace--optimized-clean-p ()
+  "Return non-nil if no trailing whitespace is present.
+This optimized version is faster as it performs a single regex search."
+  (save-match-data
+    (save-excursion
+      (cond
+       ((and (goto-char (point-min))
+             (re-search-forward "[ \t]+$" (point-max) t))
+        nil)
+
+       ((and delete-trailing-lines
+             (goto-char (point-max))
+             (<= (skip-chars-backward "\n") -2))
+        nil)
+
+       (t
+        t)))))
 
 (defun stripspace--clean-p ()
   "Return non-nil if the whitespace has already been deleted."
-  (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
-    (with-temp-buffer
-      (insert contents)
-      (set-buffer-modified-p nil)
-      (stripspace-clean)
-      (not (buffer-modified-p)))))
+  (save-excursion
+    (widen)
+    (cond
+     ((eq stripspace-clean-function 'delete-trailing-whitespace)
+      ;; Optimized for delete trailing whitespace
+      (stripspace--optimized-clean-p))
+
+     (t
+      ;; Generic version
+      (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
+        (with-temp-buffer
+          (insert contents)
+          (set-buffer-modified-p nil)
+          (stripspace-clean)
+          (not (buffer-modified-p))))))))
 
 (defun stripspace--delete-trailing-whitespace-maybe ()
   "Delete trailing whitespace, maybe."
-  (let ((delete-trailing-whitespace t))
+  (let ((do-clean t))
     (when (and stripspace-only-if-initially-clean
                (not (eq stripspace--clean t)))
-      (setq delete-trailing-whitespace nil))
-    (when delete-trailing-whitespace
+      (setq do-clean nil))
+    (when do-clean
       (stripspace-clean))))
 
 (defun stripspace--before-save-hook ()
