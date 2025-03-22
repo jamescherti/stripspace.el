@@ -121,7 +121,7 @@ This variable is used to track the state of trailing whitespace in the buffer.")
   (setq stripspace--clean t))
 
 (defun stripspace--clean-p ()
-  "Return t if the the trailing whitespace has already been deleted."
+  "Return non-nil if the whitespace has already been deleted."
   (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
     (with-temp-buffer
       (insert contents)
@@ -148,9 +148,7 @@ in a buffer-local variable and deletes any trailing whitespace."
 (defun stripspace--after-save-hook ()
   "Restore the cursor to the previously saved column after saving.
 This function is triggered by `after-save-hook'. It attempts to move the cursor
-back to its original column while ensuring the buffer remains unmodified.
-Restoring trailing whitespace is only done to maintain cursor position without
-marking the buffer as changed."
+back to its original column while ensuring the buffer remains unmodified."
   (when stripspace-restore-column
     (unwind-protect
         (progn
