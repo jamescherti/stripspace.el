@@ -31,7 +31,7 @@
 ;;; Customizations
 
 (defgroup stripspace nil
-  "Ensures that Emacs removes trailing whitespace before saving a buffer"
+  "Ensures that Emacs removes trailing whitespace before saving a buffer."
   :group 'stripspace
   :prefix "stripspace-"
   :link '(url-link
