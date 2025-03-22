@@ -163,12 +163,9 @@ This optimized version is faster as it performs a single regex search."
 
 (defun stripspace--delete-trailing-whitespace-maybe ()
   "Delete trailing whitespace, maybe."
-  (let ((do-clean t))
-    (when (and stripspace-only-if-initially-clean
-               (not (eq stripspace--clean t)))
-      (setq do-clean nil))
-    (when do-clean
-      (stripspace-clean))))
+  (when (or (not stripspace-only-if-initially-clean)
+            (eq stripspace--clean t))
+    (stripspace-clean)))
 
 (defun stripspace--before-save-hook ()
   "Save the current cursor column position and remove trailing whitespace.
@@ -187,7 +184,7 @@ back to its original column while ensuring the buffer remains unmodified."
           (when stripspace--column
             ;; Restore the column position, adding spaces if necessary
             (move-to-column stripspace--column t))
-          ;; Prevent marking the buffer as modified
+          ;; Prevent marking the buffer as modified after restoring the column
           (set-buffer-modified-p nil))
       (setq stripspace--column nil)))
   (stripspace--verbose-message
