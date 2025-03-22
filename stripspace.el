@@ -61,7 +61,7 @@ Change it to nil to always delete whitespace."
 
 ;;; Internal Variables
 
-(defvar stripspace-function #'delete-trailing-whitespace
+(defvar stripspace-clean-function #'delete-trailing-whitespace
   "A function used to remove trailing whitespace from the current buffer.
 This function is invoked to eliminate any extraneous spaces or tabs at the end
 of lines. Here are some alternative functions:
@@ -94,7 +94,7 @@ restored after reformatting has been completed.")
 
 ;;; Internal variables
 
-(defvar-local stripspace--clean 'undefined
+(defvar-local stripspace--clean :undefined
   "Indicates whether the buffer contains no trailing whitespace.
 This variable is used to track the state of trailing whitespace in the buffer.")
 
@@ -117,7 +117,7 @@ This variable is used to track the state of trailing whitespace in the buffer.")
 (defun stripspace-clean ()
   "Delete trailing whitespace in the current buffer."
   (interactive)
-  (funcall stripspace-function)
+  (funcall stripspace-clean-function)
   (setq stripspace--clean t))
 
 (defun stripspace--clean-p ()
@@ -163,10 +163,10 @@ marking the buffer as changed."
   (stripspace--verbose-message
    "%s"
    (cond
-    ((eq stripspace--clean 'undefined)
-     (format "Run: %s" stripspace-function))
+    ((eq stripspace--clean :undefined)
+     (format "Run: %s" stripspace-clean-function))
     (stripspace--clean
-     (format "Run (Reason: The buffer is clean): %s" stripspace-function))
+     (format "Run (Reason: The buffer is clean): %s" stripspace-clean-function))
     (t
      (format "Ignored (Reason: The buffer is not clean)")))))
 
@@ -182,13 +182,11 @@ This mode ensures that trailing whitespace is removed before saving a buffer."
   (if stripspace-local-mode
       (progn
         (when stripspace-only-if-initially-clean
-          (when (eq stripspace--clean 'undefined)
+          (when (eq stripspace--clean :undefined)
             (setq stripspace--clean (stripspace--clean-p))
-            (if stripspace--clean
-                (stripspace--verbose-message
-                 "This buffer is clean: %s" (buffer-name))
-              (stripspace--verbose-message
-               "This buffer is NOT clean: %s" (buffer-name)))))
+            (stripspace--verbose-message "This buffer is%s clean: %s"
+                                         (if stripspace--clean "" " NOT")
+                                         (buffer-name))))
 
         ;; Mode enabled
         (add-hook 'before-save-hook #'stripspace--before-save-hook
