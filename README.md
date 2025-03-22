@@ -40,6 +40,13 @@ To install *stripspace* with `straight.el`:
   :hook ((prog-mode . stripspace-local-mode)
          (text-mode . stripspace-local-mode))
   :custom
+  ;; Non-nil to only delete whitespace when the buffer is clean initially.
+  ;; The initial cleanliness check is performed when `stripspace-local-mode'
+  ;; is enabled.
+  ;;
+  ;; Change it to nil to always delete whitespace.
+  (stripspace-only-if-initially-clean t)
+
   ;; Enabling `stripspace-restore-column' preserves the cursor's column position
   ;; even after stripping spaces. This is useful in scenarios where you add
   ;; extra spaces and then save the file. Although the spaces are removed in the
@@ -62,6 +69,13 @@ To install *stripspace* with `use-package` and `:vc` (Emacs >= 30):
   :hook ((prog-mode . stripspace-local-mode)
          (text-mode . stripspace-local-mode))
   :custom
+  ;; Non-nil to only delete whitespace when the buffer is clean initially.
+  ;; The initial cleanliness check is performed when `stripspace-local-mode'
+  ;; is enabled.
+  ;;
+  ;; Change it to nil to always delete whitespace.
+  (stripspace-only-if-initially-clean t)
+
   ;; Enabling `stripspace-restore-column' preserves the cursor's column position
   ;; even after stripping spaces. This is useful in scenarios where you add
   ;; extra spaces and then save the file. Although the spaces are removed in the

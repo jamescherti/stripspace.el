@@ -54,7 +54,8 @@ clean)."
 (defcustom stripspace-only-if-initially-clean nil
   "Non-nil to only delete whitespace when the buffer is clean initially.
 The initial cleanliness check is performed when `stripspace-local-mode' is
-enabled."
+enabled.
+Change it to nil to always delete whitespace."
   :type 'boolean
   :group 'stripspace)
 
@@ -165,9 +166,9 @@ marking the buffer as changed."
     ((eq stripspace--clean 'undefined)
      (format "Run: %s" stripspace-function))
     (stripspace--clean
-     (format "Run: %s" stripspace-function))
+     (format "Run (Reason: The buffer is clean): %s" stripspace-function))
     (t
-     (format "Ignored (not clean)")))))
+     (format "Ignored (Reason: The buffer is not clean)")))))
 
 ;;; Modes
 
