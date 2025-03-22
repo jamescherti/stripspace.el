@@ -211,12 +211,12 @@ This mode ensures that trailing whitespace is removed before saving a buffer."
   :group 'stripspace
   (if stripspace-local-mode
       (progn
-        (when stripspace-only-if-initially-clean
-          (when (eq stripspace--clean :undefined)
-            (setq stripspace--clean (stripspace--clean-p))
-            (stripspace--verbose-message "This buffer is%s clean: %s"
-                                         (if stripspace--clean "" " NOT")
-                                         (buffer-name))))
+        (when (and stripspace-only-if-initially-clean
+                   (eq stripspace--clean :undefined))
+          (setq stripspace--clean (stripspace--clean-p))
+          (stripspace--verbose-message "This buffer is%s clean: %s"
+                                       (if stripspace--clean "" " NOT")
+                                       (buffer-name)))
 
         ;; Mode enabled
         (add-hook 'before-save-hook #'stripspace--before-save-hook
