@@ -121,35 +121,38 @@ restored after reformatting has been completed.")
        (stripspace--message
         (concat "[stripspace] " ,(car args)) ,@(cdr args)))))
 
+(defun stripspace--delete-trailing-whitespace ()
+  "Delete trailing whitespace."
+  (let ((delete-trailing-lines stripspace-delete-trailing-lines))
+    (delete-trailing-whitespace)))
+
 (defun stripspace--clean-p ()
   "Return t if the the trailing whitespace has already been deleted."
   (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
     (with-temp-buffer
       (insert contents)
       (set-buffer-modified-p nil)
-      (let ((delete-trailing-lines stripspace-delete-trailing-lines))
-        (delete-trailing-whitespace))
+      (stripspace--delete-trailing-whitespace)
       (not (buffer-modified-p)))))
 
-(defun stripspace--delete-trailing-whitespace ()
-  "Delete trailing whitespace."
-  (if stripspace-only-if-initially-clean
+(defun stripspace--delete-trailing-whitespace-maybe ()
+  "Delete trailing whitespace, maybe."
+  (let ((delete-trailing-whitespace t))
+    (when stripspace-only-if-initially-clean
       (when (eq stripspace--clean 'undefined)
         (setq stripspace--clean (stripspace--clean-p)))
-    (setq stripspace--clean t))
+      (setq delete-trailing-whitespace (eq stripspace--clean t)))
+    (when delete-trailing-whitespace
+      (stripspace--delete-trailing-whitespace))))
 
-  (when stripspace--clean
-    (let ((delete-trailing-lines stripspace-delete-trailing-lines))
-      (delete-trailing-whitespace))))
-
-(defun stripspace--save-column ()
+(defun stripspace--before-save-hook ()
   "Save the current cursor column position and remove trailing whitespace.
 This function is triggered by `before-save-hook'. It stores the current column
 in a buffer-local variable and deletes any trailing whitespace."
   (setq stripspace--column (current-column))
-  (stripspace--delete-trailing-whitespace))
+  (stripspace--delete-trailing-whitespace-maybe))
 
-(defun stripspace--move-to-saved-column ()
+(defun stripspace--after-save-hook ()
   "Restore the cursor to the previously saved column after saving.
 This function is triggered by `after-save-hook'. It attempts to move the cursor
 back to its original column while ensuring the buffer remains unmodified.
@@ -177,13 +180,13 @@ This mode ensures that trailing whitespace is removed before saving a buffer."
   (if stripspace-local-mode
       (progn
         ;; Mode enabled
-        (add-hook 'before-save-hook #'stripspace--save-column
+        (add-hook 'before-save-hook #'stripspace--before-save-hook
                   stripspace-before-save-hook-depth t)
-        (add-hook 'after-save-hook #'stripspace--move-to-saved-column
+        (add-hook 'after-save-hook #'stripspace--after-save-hook
                   stripspace-after-save-hook-depth t))
     ;; Mode disabled
-    (remove-hook 'before-save-hook #'stripspace--save-column t)
-    (remove-hook 'after-save-hook #'stripspace--move-to-saved-column t)))
+    (remove-hook 'before-save-hook #'stripspace--before-save-hook t)
+    (remove-hook 'after-save-hook #'stripspace--after-save-hook t)))
 
 (provide 'stripspace)
 ;;; stripspace.el ends here
