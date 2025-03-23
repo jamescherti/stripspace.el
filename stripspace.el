@@ -46,7 +46,7 @@ clean)."
   :type 'boolean
   :group 'stripspace)
 
-(defcustom stripspace-restore-column nil
+(defcustom stripspace-restore-column t
   "Restore the cursor's column after deleting the trailing whitespace."
   :type 'boolean
   :group 'stripspace)
