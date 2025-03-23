@@ -43,12 +43,12 @@ To install *stripspace* with `straight.el`:
          (text-mode . stripspace-local-mode)
          (conf-mode . stripspace-local-mode))
   :custom
+  ;; nil to always delete trailing whitespace.
   ;; Non-nil to only delete whitespace when the buffer is clean initially.
-  ;; The initial cleanliness check is performed when `stripspace-local-mode'
-  ;; is enabled.
   ;;
-  ;; Change it to nil to always delete whitespace.
-  (stripspace-only-if-initially-clean t)
+  ;; (The initial cleanliness check is performed when `stripspace-local-mode'
+  ;; is enabled.)
+  (stripspace-only-if-initially-clean nil)
 
   ;; Enabling `stripspace-restore-column' preserves the cursor's column position
   ;; even after stripping spaces. This is useful in scenarios where you add
@@ -73,11 +73,11 @@ To install *stripspace* with `use-package` and `:vc` (Emacs >= 30):
          (text-mode . stripspace-local-mode)
          (conf-mode . stripspace-local-mode))
   :custom
+  ;; nil to always delete trailing whitespace.
   ;; Non-nil to only delete whitespace when the buffer is clean initially.
-  ;; The initial cleanliness check is performed when `stripspace-local-mode'
-  ;; is enabled.
   ;;
-  ;; Change it to nil to always delete whitespace.
+  ;; (The initial cleanliness check is performed when `stripspace-local-mode'
+  ;; is enabled.)
   (stripspace-only-if-initially-clean t)
 
   ;; Enabling `stripspace-restore-column' preserves the cursor's column position
