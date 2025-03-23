@@ -88,6 +88,14 @@ To install *stripspace* with `use-package` and `:vc` (Emacs >= 30):
   (stripspace-restore-column t))
 ```
 
+## Frequently asked question
+
+### What is the difference between stripspace and ws-butler?
+
+The *ws-butler* tracks modified lines and removes whitespace only from those lines. However, it is slightly more complex than *stripspace*. To track changes, the *ws-butler* function is triggered by multiple hooks: after-change-functions, before-save-hook, after-save-hook, before-revert-hook, after-revert-hook, and edit-server-done-hook.
+
+In contrast, the *stripspace* package is simpler and faster. It operates solely on the before-save-hook and after-save-hook to remove whitespace from the entire buffer. Optionally, when the mode is enabled, it can check if the buffer is already clean (with no whitespace) to determine whether trailing whitespace should be deleted automatically.
+
 ## Author and License
 
 The *stripspace* Emacs package has been written by [James Cherti](https://www.jamescherti.com/) and is distributed under terms of the GNU General Public License version 3, or, at your choice, any later version.
