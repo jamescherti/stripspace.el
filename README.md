@@ -43,7 +43,7 @@ To install *stripspace* with `straight.el`:
          (text-mode . stripspace-local-mode)
          (conf-mode . stripspace-local-mode))
   :custom
-  ;; `stripspace-only-if-initially-clean' option:
+  ;; The `stripspace-only-if-initially-clean' option:
   ;; - nil to always delete trailing whitespace.
   ;; - Non-nil to only delete whitespace when the buffer is clean initially.
   ;; (The initial cleanliness check is performed when `stripspace-local-mode'
@@ -73,7 +73,7 @@ To install *stripspace* with `use-package` and `:vc` (Emacs >= 30):
          (text-mode . stripspace-local-mode)
          (conf-mode . stripspace-local-mode))
   :custom
-  ;; `stripspace-only-if-initially-clean' option:
+  ;; The `stripspace-only-if-initially-clean' option:
   ;; - nil to always delete trailing whitespace.
   ;; - Non-nil to only delete whitespace when the buffer is clean initially.
   ;; (The initial cleanliness check is performed when `stripspace-local-mode'
