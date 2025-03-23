@@ -121,8 +121,9 @@ This variable is used to track the state of trailing whitespace in the buffer.")
   "Delete trailing whitespace in the current buffer."
   (interactive)
   (save-excursion
-    (widen)
-    (funcall stripspace-clean-function))
+    (save-restriction
+      (widen)
+      (funcall stripspace-clean-function)))
   (setq stripspace--clean t))
 
 (defun stripspace--optimized-clean-p ()
@@ -146,20 +147,21 @@ This optimized version is faster as it performs a single regex search."
 (defun stripspace--clean-p ()
   "Return non-nil if the whitespace has already been deleted."
   (save-excursion
-    (widen)
-    (cond
-     ((eq stripspace-clean-function 'delete-trailing-whitespace)
-      ;; Optimized for delete trailing whitespace
-      (stripspace--optimized-clean-p))
+    (save-restriction
+      (widen)
+      (cond
+       ((eq stripspace-clean-function 'delete-trailing-whitespace)
+        ;; Optimized for delete trailing whitespace
+        (stripspace--optimized-clean-p))
 
-     (t
-      ;; Generic version
-      (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
-        (with-temp-buffer
-          (insert contents)
-          (set-buffer-modified-p nil)
-          (stripspace-clean)
-          (not (buffer-modified-p))))))))
+       (t
+        ;; Generic version
+        (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
+          (with-temp-buffer
+            (insert contents)
+            (set-buffer-modified-p nil)
+            (stripspace-clean)
+            (not (buffer-modified-p)))))))))
 
 (defun stripspace--delete-trailing-whitespace-maybe ()
   "Delete trailing whitespace, maybe."
