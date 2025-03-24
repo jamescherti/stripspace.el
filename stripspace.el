@@ -185,9 +185,10 @@ back to its original column while ensuring the buffer remains unmodified."
         (progn
           (when stripspace--column
             ;; Restore the column position, adding spaces if necessary
-            (move-to-column stripspace--column t))
-          ;; Prevent marking the buffer as modified after restoring the column
-          (set-buffer-modified-p nil))
+            (move-to-column stripspace--column t)
+
+            ;; Prevent marking the buffer as modified after restoring the column
+            (set-buffer-modified-p nil)))
       (setq stripspace--column nil)))
   (stripspace--verbose-message
    "%s"
