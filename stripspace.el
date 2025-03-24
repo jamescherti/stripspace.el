@@ -75,7 +75,6 @@ end of the region to clean.
 Examples of functions that can be used as `stripspace-cleanup-region-function':
 - `delete-trailing-whitespace' (default)
 - `whitespace-cleanup-region'"
-
   :type 'function
   :group 'stripspace)
 
@@ -83,7 +82,6 @@ Examples of functions that can be used as `stripspace-cleanup-region-function':
   "Function used to determine if the buffer is considered clean.
 If this is set to nil, stripspace will use an internal function to check the
 buffer's cleanliness.
-
 This function takes two arguments (beg and end), which specify the beginning
 and end of the region."
   :type '(choice function (const nil))
