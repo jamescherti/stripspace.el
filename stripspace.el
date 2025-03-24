@@ -147,10 +147,9 @@ This variable is used to track the state of trailing whitespace in the buffer.")
   "Delete trailing whitespace in the current buffer.
 The BEG and END arguments respresent the beginning and end of the region."
   (interactive)
-  (stripspace--ignore-narrowing-maybe
-   (unless beg (setq beg (point-min)))
-   (unless end (setq end (point-max)))
-   (funcall stripspace-delete-function beg end))
+  (unless beg (setq beg (point-min)))
+  (unless end (setq end (point-max)))
+  (funcall stripspace-delete-function beg end)
 
   (setq stripspace--clean t))
 
@@ -203,7 +202,8 @@ The BEG and END arguments respresent the beginning and end of the region."
 The BEG and END arguments respresent the beginning and end of the region."
   (when (or (not stripspace-only-if-initially-clean)
             (eq stripspace--clean t))
-    (stripspace-clean beg end)))
+    (stripspace--ignore-narrowing-maybe
+     (stripspace-clean beg end))))
 
 (defun stripspace--before-save-hook ()
   "Save the current cursor column position and remove trailing whitespace.
