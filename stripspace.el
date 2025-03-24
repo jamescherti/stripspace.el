@@ -51,7 +51,6 @@ clean)."
   :type 'boolean
   :group 'stripspace)
 
-
 (defcustom stripspace-only-if-initially-clean nil
   "If non-nil, perform cleanup only when the buffer is clean initially.
 This check is performed when `stripspace-local-mode' is enabled. Setting this
