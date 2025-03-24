@@ -62,7 +62,7 @@ buffer's initial state."
 
 (defcustom stripspace-cleanup-buffer-function 'delete-trailing-whitespace
   "Function used to remove trailing whitespace from the current buffer.
-Alternative functions include:
+Examples of functions that can be used as `stripspace-cleanup-buffer-function':
 - `delete-trailing-whitespace' (default)
 - `whitespace-cleanup'."
   :type 'function
@@ -70,13 +70,16 @@ Alternative functions include:
 
 (defcustom stripspace-cleanup-region-function 'delete-trailing-whitespace
   "Function used to remove trailing whitespace from the current buffer.
-Alternative functions include:
+This function takes two arguments, BEG and END, which specify the beginning and
+end of the region to clean.
+Examples of functions that can be used as `stripspace-cleanup-region-function':
 - `delete-trailing-whitespace' (default)
-- `whitespace-cleanup'."
+- `whitespace-cleanup-region'"
+
   :type 'function
   :group 'stripspace)
 
-(defcustom stripspace-clean-p-function nil
+(defcustom stripspace-clean-buffer-p-function nil
   "Function used to determine if the buffer is considered clean.
 If this is set to nil, stripspace will use an internal function to check the
 buffer's cleanliness.
@@ -218,8 +221,8 @@ The BEG and END arguments respresent the beginning and end of the region."
   (unless beg (setq beg (point-min)))
   (unless end (setq end (point-max)))
   (cond
-   (stripspace-clean-p-function
-    (funcall stripspace-clean-p-function beg end))
+   (stripspace-clean-buffer-p-function
+    (funcall stripspace-clean-buffer-p-function beg end))
 
    ;; Optimized function
    ((or (not stripspace-cleanup-buffer-function)
