@@ -143,36 +143,6 @@ This variable is used to track the state of trailing whitespace in the buffer.")
          (widen))
        ,@body)))
 
-(defun stripspace--optimized-delete-trailing-whitespace-clean-p (beg end)
-  "Return non-nil if no trailing whitespace is present.
-This optimized version is faster as it performs a single regex search.
-It is used when `delete-trailing-whitespace' is called.
-The BEG and END arguments respresent the beginning and end of the region."
-  (save-match-data
-    (save-excursion
-      (cond
-       ((and (goto-char beg)
-             (re-search-forward "[ \t]+$" end t))
-        nil)
-
-       ((and delete-trailing-lines
-             (goto-char end)
-             (<= (skip-chars-backward "\n") -2))
-        nil)
-
-       (t
-        t)))))
-
-(defun stripspace--generic-clean-p (beg end)
-  "Return non-nil if no trailing whitespace is present.
-The BEG and END arguments respresent the beginning and end of the region."
-  (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
-    (with-temp-buffer
-      (insert contents)
-      (set-buffer-modified-p nil)
-      (stripspace-cleanup)
-      (not (buffer-modified-p)))))
-
 (defun stripspace--mode-cleanup-maybe (beg end)
   "Delete trailing whitespace, maybe.
 The BEG and END arguments respresent the beginning and end of the region."
@@ -213,6 +183,26 @@ back to its original column while ensuring the buffer remains unmodified."
     (t
      (format "Ignored (Reason: The buffer is not clean)")))))
 
+(defun stripspace--optimized-delete-trailing-whitespace-clean-p (beg end)
+  "Return non-nil if no trailing whitespace is present.
+This optimized version is faster as it performs a single regex search.
+It is used when `delete-trailing-whitespace' is called.
+The BEG and END arguments respresent the beginning and end of the region."
+  (save-match-data
+    (save-excursion
+      (cond
+       ((and (goto-char beg)
+             (re-search-forward "[ \t]+$" end t))
+        nil)
+
+       ((and delete-trailing-lines
+             (goto-char end)
+             (<= (skip-chars-backward "\n") -2))
+        nil)
+
+       (t
+        t)))))
+
 ;;; Functions
 
 (defun stripspace-clean-p (&optional beg end)
@@ -231,7 +221,12 @@ The BEG and END arguments respresent the beginning and end of the region."
     (stripspace--optimized-delete-trailing-whitespace-clean-p beg end))
 
    (t
-    (stripspace--generic-clean-p beg end))))
+    (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
+      (with-temp-buffer
+        (insert contents)
+        (set-buffer-modified-p nil)
+        (stripspace-cleanup)
+        (not (buffer-modified-p)))))))
 
 ;;; Autoloaded functions
 
