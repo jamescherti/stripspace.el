@@ -60,7 +60,15 @@ buffer's initial state."
   :type 'boolean
   :group 'stripspace)
 
-(defcustom stripspace-cleanup-function 'delete-trailing-whitespace
+(defcustom stripspace-cleanup-buffer-function 'delete-trailing-whitespace
+  "Function used to remove trailing whitespace from the current buffer.
+Alternative functions include:
+- `delete-trailing-whitespace' (default)
+- `whitespace-cleanup'."
+  :type 'function
+  :group 'stripspace)
+
+(defcustom stripspace-cleanup-region-function 'delete-trailing-whitespace
   "Function used to remove trailing whitespace from the current buffer.
 Alternative functions include:
 - `delete-trailing-whitespace' (default)
@@ -175,10 +183,10 @@ back to its original column while ensuring the buffer remains unmodified."
    "%s"
    (cond
     ((eq stripspace--clean :undefined)
-     (format "Run: %s" stripspace-cleanup-function))
+     (format "Run: %s" stripspace-cleanup-buffer-function))
     (stripspace--clean
      (format "Run (Reason: The buffer is clean): %s"
-             stripspace-cleanup-function))
+             stripspace-cleanup-buffer-function))
     (t
      (format "Ignored (Reason: The buffer is not clean)")))))
 
@@ -214,8 +222,8 @@ The BEG and END arguments respresent the beginning and end of the region."
     (funcall stripspace-clean-p-function beg end))
 
    ;; Optimized function
-   ((or (not stripspace-cleanup-function)
-        (eq stripspace-cleanup-function
+   ((or (not stripspace-cleanup-buffer-function)
+        (eq stripspace-cleanup-buffer-function
             'delete-trailing-whitespace))
     (stripspace--optimized-delete-trailing-whitespace-clean-p beg end))
 
@@ -230,10 +238,20 @@ The BEG and END arguments respresent the beginning and end of the region."
 ;;; Autoloaded functions
 
 ;;;###autoload
-(defun stripspace-cleanup ()
-  "Delete trailing whitespace in the current buffer."
+(defun stripspace-cleanup (&optional beg end)
+  "Delete trailing whitespace in the current buffer or region.
+
+If BEG and END are provided, the whitespace is cleaned within that region using
+`stripspace-cleanup-region-function'.
+
+If either BEG or END is nil, the entire buffer is cleaned using
+`stripspace-cleanup-buffer-function'.
+
+BEG and END specify the beginning and end of the region to clean."
   (interactive)
-  (funcall stripspace-cleanup-function)
+  (if (and beg end)
+      (funcall stripspace-cleanup-region-function beg end)
+    (funcall stripspace-cleanup-buffer-function))
   (setq stripspace--clean t))
 
 ;;;###autoload
