@@ -65,8 +65,13 @@ buffer's initial state."
 Examples of functions that can be used as `stripspace-cleanup-buffer-function':
 - `delete-trailing-whitespace' (default)
 - `whitespace-cleanup'."
-  :type 'function
+  :type '(choice (const
+                  :tag "delete-trailing-whitespace" delete-trailing-whitespace)
+                 (const
+                  :tag "whitespace-cleanup" whitespace-cleanup)
+                 function)
   :group 'stripspace)
+
 
 (defcustom stripspace-cleanup-region-function 'delete-trailing-whitespace
   "Function used to remove trailing whitespace from the current buffer.
@@ -75,7 +80,11 @@ end of the region to clean.
 Examples of functions that can be used as `stripspace-cleanup-region-function':
 - `delete-trailing-whitespace' (default)
 - `whitespace-cleanup-region'"
-  :type 'function
+  :type '(choice (const
+                  :tag "delete-trailing-whitespace" delete-trailing-whitespace)
+                 (const
+                  :tag "whitespace-cleanup-region" whitespace-cleanup-region)
+                 function)
   :group 'stripspace)
 
 (defcustom stripspace-clean-buffer-p-function nil
@@ -91,7 +100,6 @@ and end of the region."
   "If non-nil, ignore restrictions such as `narrow-to-region'.
 When enabled, whitespace removal applies to the whole buffer, even if a region
 is narrowed.
-
 If unsure, keep this set to t."
   :type 'boolean
   :group 'stripspace)
