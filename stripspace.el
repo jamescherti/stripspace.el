@@ -88,6 +88,33 @@ If unsure, keep this set to t."
   :type 'boolean
   :group 'stripspace)
 
+(defcustom stripspace-ignore-modes
+  '(;; Special buffers
+    special-mode
+    ;; Minibuffer
+    minibuffer-mode
+    ;; Used for interactive shells or processes, where trailing spaces might be
+    ;; part of the output or interaction.
+    comint-mode
+    ;; An Emacs shell mode where trailing spaces might be part of input/output
+    ;; in an interactive shell environment.
+    eshell-mode
+    ;; Similar to comint-mode, it simulates terminal environments where trailing
+    ;; spaces could be relevant.
+    term-mode
+    ;; Trailing spaces in diff outputs often signify differences in the content,
+    ;; making them important to preserve.
+    diff-mode
+    ;; Clojure REPL, where trailing spaces could be relevant for interactions or
+    ;; output.
+    cider-repl-mode
+    ;; Haskell REPL, similar to cider-repl-mode, where trailing spaces could
+    ;; impact interactive programming sessions.
+    haskell-interactive-mode)
+  "List of major modes that `stripspace-mode' (global mode) should ignore."
+  :type '(repeat (symbol :tag "Major mode"))
+  :group 'stripspace)
+
 ;;; Variables
 
 (defvar stripspace-before-save-hook-depth -99
@@ -267,6 +294,14 @@ This mode ensures that trailing whitespace is removed before saving a buffer."
     ;; Mode disabled
     (remove-hook 'before-save-hook #'stripspace--mode-before-save-hook t)
     (remove-hook 'after-save-hook #'stripspace--mode-after-save-hook t)))
+
+;;;###autoload
+(define-globalized-minor-mode stripspace-mode
+  stripspace-local-mode
+  #'(lambda()
+      (when (and (not (minibufferp))
+                 (not (apply 'derived-mode-p stripspace-ignore-modes)))
+        (stripspace-local-mode 1))))
 
 (provide 'stripspace)
 ;;; stripspace.el ends here
