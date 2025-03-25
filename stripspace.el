@@ -154,33 +154,39 @@ This variable is used to track the state of trailing whitespace in the buffer.")
   "Save the current cursor column position and remove trailing whitespace.
 This function is triggered by `before-save-hook'. It stores the current column
 in a buffer-local variable and deletes any trailing whitespace."
-  (setq stripspace--column (current-column))
-  (stripspace--mode-cleanup-maybe))
+  (when (bound-and-true-p stripspace-local-mode)
+    (setq stripspace--column (current-column))
+    (stripspace--mode-cleanup-maybe)))
 
 (defun stripspace--mode-after-save-hook ()
   "Restore the cursor to the previously saved column after saving.
 This function is triggered by `after-save-hook'. It attempts to move the cursor
 back to its original column while ensuring the buffer remains unmodified."
-  (when stripspace-restore-column
-    (unwind-protect
-        (progn
-          (when stripspace--column
-            ;; Restore the column position, adding spaces if necessary
-            (move-to-column stripspace--column t)
+  (when (bound-and-true-p stripspace-local-mode)
+    ;; Restore column
+    (when stripspace-restore-column
+      (unwind-protect
+          (progn
+            (when stripspace--column
+              ;; Restore the column position, adding spaces if necessary
+              (move-to-column stripspace--column t)
 
-            ;; Prevent marking the buffer as modified after restoring the column
-            (set-buffer-modified-p nil)))
-      (setq stripspace--column nil)))
-  (stripspace--verbose-message
-   "%s"
-   (cond
-    ((eq stripspace--clean :undefined)
-     (format "Run: %s" stripspace-cleanup-buffer-function))
-    (stripspace--clean
-     (format "Run (Reason: The buffer is clean): %s"
-             stripspace-cleanup-buffer-function))
-    (t
-     (format "Ignored (Reason: The buffer is not clean)")))))
+              ;; Prevent marking the buffer as modified after restoring the
+              ;; column
+              (set-buffer-modified-p nil)))
+        (setq stripspace--column nil)))
+
+    ;; Display a message
+    (stripspace--verbose-message
+     "%s"
+     (cond
+      ((eq stripspace--clean :undefined)
+       (format "Run: %s" stripspace-cleanup-buffer-function))
+      (stripspace--clean
+       (format "Run (Reason: The buffer is clean): %s"
+               stripspace-cleanup-buffer-function))
+      (t
+       (format "Ignored (Reason: The buffer is not clean)"))))))
 
 (defun stripspace--optimized-delete-trailing-whitespace-clean-p (beg end)
   "Return non-nil if no trailing whitespace is present.
