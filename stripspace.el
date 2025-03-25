@@ -62,7 +62,7 @@ buffer's initial state."
 (defcustom stripspace-cleanup-buffer-function 'delete-trailing-whitespace
   "Function used to remove trailing whitespace from the current buffer.
 Examples of functions that can be used as `stripspace-cleanup-buffer-function':
-- `delete-trailing-whitespace' (default)
+- `delete-trailing-whitespace'.
 - `whitespace-cleanup'."
   :type '(choice (const
                   :tag "delete-trailing-whitespace" delete-trailing-whitespace)
