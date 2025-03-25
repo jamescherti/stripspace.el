@@ -71,21 +71,6 @@ Examples of functions that can be used as `stripspace-cleanup-buffer-function':
                  function)
   :group 'stripspace)
 
-
-(defcustom stripspace-cleanup-region-function 'delete-trailing-whitespace
-  "Function used to remove trailing whitespace from the current buffer.
-This function takes two arguments, BEG and END, which specify the beginning and
-end of the region to clean.
-Examples of functions that can be used as `stripspace-cleanup-region-function':
-- `delete-trailing-whitespace' (default)
-- `whitespace-cleanup-region'"
-  :type '(choice (const
-                  :tag "delete-trailing-whitespace" delete-trailing-whitespace)
-                 (const
-                  :tag "whitespace-cleanup-region" whitespace-cleanup-region)
-                 function)
-  :group 'stripspace)
-
 (defcustom stripspace-clean-buffer-p-function nil
   "Function used to determine if the buffer is considered clean.
 If this is set to nil, stripspace will use an internal function to check the
@@ -246,20 +231,10 @@ The BEG and END arguments respresent the beginning and end of the region."
 ;;; Autoloaded functions
 
 ;;;###autoload
-(defun stripspace-cleanup (&optional beg end)
-  "Delete trailing whitespace in the current buffer or region.
-
-If BEG and END are provided, the whitespace is cleaned within that region using
-`stripspace-cleanup-region-function'.
-
-If either BEG or END is nil, the entire buffer is cleaned using
-`stripspace-cleanup-buffer-function'.
-
-BEG and END specify the beginning and end of the region to clean."
+(defun stripspace-cleanup ()
+  "Delete trailing whitespace in the current buffer or region."
   (interactive)
-  (if (and beg end)
-      (funcall stripspace-cleanup-region-function beg end)
-    (funcall stripspace-cleanup-buffer-function))
+  (funcall stripspace-cleanup-buffer-function)
   (setq stripspace--clean t))
 
 ;;;###autoload
