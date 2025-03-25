@@ -210,21 +210,22 @@ The BEG and END arguments respresent the beginning and end of the region."
   (unless beg (setq beg (point-min)))
   (unless end (setq end (point-max)))
   (cond
-   (stripspace-clean-buffer-p-function
-    (funcall stripspace-clean-buffer-p-function beg end))
-
    ;; Optimized function
    ((or (not stripspace-cleanup-buffer-function)
         (eq stripspace-cleanup-buffer-function
             'delete-trailing-whitespace))
     (stripspace--optimized-delete-trailing-whitespace-clean-p beg end))
 
+   (stripspace-clean-buffer-p-function
+    (funcall stripspace-clean-buffer-p-function beg end))
+
    (t
     (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
       (with-temp-buffer
         (insert contents)
         (set-buffer-modified-p nil)
-        (stripspace-cleanup)
+        (let (stripspace--clean)
+          (stripspace-cleanup))
         (not (buffer-modified-p)))))))
 
 ;;; Autoloaded functions
