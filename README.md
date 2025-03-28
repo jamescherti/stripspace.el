@@ -21,7 +21,7 @@ The **stripspace** Emacs package provides `stripspace-local-mode`, which automat
   This ensures a consistent editing experience and prevents unintended cursor movement when saving a buffer and removing trailing whitespace.
 - The functions for deleting whitespace are customizable, allowing the user to specify a custom function for removing trailing whitespace from the current buffer.
 - Even if the buffer is narrowed, `stripspace` removes trailing whitespace from the entire buffer. This behavior, controlled by `stripspace-ignore-restrictions` (default: `t`), can be adjusted as needed.
-- The `stripspace-clean-function` customization allows the user to specify a function for removing trailing whitespace from the current buffer. This function is called to eliminate any extraneous spaces or tabs at the end of lines. Alternative functions include `delete-trailing-whitespace` or `whitespace-cleanup` (default).
+- The `stripspace-clean-function` customization allows the user to specify a function for removing trailing whitespace from the current buffer. This function is called to eliminate any extraneous spaces or tabs at the end of lines. Alternative functions include `delete-trailing-whitespace` (default) or `whitespace-cleanup`.
 
 ## Installation
 
