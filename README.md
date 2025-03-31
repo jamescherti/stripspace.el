@@ -30,7 +30,7 @@ Here are the features of `(stripspace-local-mode)`:
 
 1. If you haven't already done so, [add MELPA repository to your Emacs configuration](https://melpa.org/#/getting-started).
 
-2. Add the following code **at the very beginning of your init.el file, before all other packages**:
+2. Add the following code to your Emacs init file to install `stripspace` from MELPA:
 
 ```emacs-lisp
 (use-package stripspace
