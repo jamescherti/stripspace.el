@@ -20,7 +20,6 @@ It also includes an optional feature (`stripspace-only-if-initially-clean`, disa
   - [Introduction](#introduction)
   - [Features](#features)
   - [Installation](#installation)
-    - [Install from MELPA](#install-from-melpa)
   - [Frequently asked question](#frequently-asked-question)
     - [How to mark a buffer as clean if it is unclean?](#how-to-mark-a-buffer-as-clean-if-it-is-unclean)
     - [What are the differences between stripspace and ws-butler?](#what-are-the-differences-between-stripspace-and-ws-butler)
@@ -44,8 +43,6 @@ Here are the features of `(stripspace-local-mode)`:
 - The `stripspace-clean-function` variable allows specifying a function for removing trailing whitespace from the current buffer. This function is called to eliminate any extraneous spaces or tabs at the end of lines. (For example, this can be set to a built-in function such as `delete-trailing-whitespace` (default) or `whitespace-cleanup`.)
 
 ## Installation
-
-### Install from MELPA
 
 1. If you haven't already done so, [add MELPA repository to your Emacs configuration](https://melpa.org/#/getting-started).
 
