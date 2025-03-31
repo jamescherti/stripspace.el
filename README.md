@@ -13,6 +13,25 @@ The **stripspace** Emacs package provides `stripspace-local-mode`, which automat
 
 It also includes an optional feature (`stripspace-only-if-initially-clean`, disabled by default), which, when enabled, ensures that trailing whitespace is removed only if the buffer was initially clean. This prevents unintended modifications to buffers that already contain changes, making it useful for preserving intentional whitespace or avoiding unnecessary edits in files managed by version control.
 
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+## Table of Contents
+
+- [stripspace.el - Ensure Emacs Automatically removes trailing whitespace before saving a buffer, with an option to preserve the cursor column](#stripspaceel---ensure-emacs-automatically-removes-trailing-whitespace-before-saving-a-buffer-with-an-option-to-preserve-the-cursor-column)
+  - [Introduction](#introduction)
+  - [Features](#features)
+  - [Installation](#installation)
+    - [Install from MELPA](#install-from-melpa)
+  - [Frequently asked question](#frequently-asked-question)
+    - [How to mark a buffer as clean if it is unclean?](#how-to-mark-a-buffer-as-clean-if-it-is-unclean)
+    - [What are the differences between stripspace and ws-butler?](#what-are-the-differences-between-stripspace-and-ws-butler)
+    - [What are the differences between stripspace and whitespace-cleanup-mode?](#what-are-the-differences-between-stripspace-and-whitespace-cleanup-mode)
+    - [What are the differences between stripspace and trimspace?](#what-are-the-differences-between-stripspace-and-trimspace)
+  - [Author and License](#author-and-license)
+  - [Links](#links)
+
+<!-- markdown-toc end -->
+
+
 ## Features
 
 Here are the features of `(stripspace-local-mode)`:
