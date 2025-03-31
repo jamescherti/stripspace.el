@@ -22,8 +22,8 @@ It also includes an optional feature (`stripspace-only-if-initially-clean`, disa
   - [Installation](#installation)
   - [Frequently asked question](#frequently-asked-question)
     - [How to prevent stripspace from deleting trailing lines?](#how-to-prevent-stripspace-from-deleting-trailing-lines)
-    - [Why should I check if the buffer is clean?](#why-should-i-check-if-the-buffer-is-clean)
-    - [How to mark a buffer as clean if it is unclean?](#how-to-mark-a-buffer-as-clean-if-it-is-unclean)
+    - [What is the purpose of checking if the buffer's trailing whitespace is clean?](#what-is-the-purpose-of-checking-if-the-buffers-trailing-whitespace-is-clean)
+    - [How to mark a buffer's trailing whitespace as clean if it is unclean?](#how-to-mark-a-buffers-trailing-whitespace-as-clean-if-it-is-unclean)
     - [What are the differences between stripspace and ws-butler?](#what-are-the-differences-between-stripspace-and-ws-butler)
     - [What are the differences between stripspace and whitespace-cleanup-mode?](#what-are-the-differences-between-stripspace-and-whitespace-cleanup-mode)
     - [What are the differences between stripspace and trimspace?](#what-are-the-differences-between-stripspace-and-trimspace)
@@ -79,17 +79,17 @@ Here are the features of `(stripspace-local-mode)`:
 
 ### How to prevent stripspace from deleting trailing lines?
 
-By default, the `stripspace-clean-function` variable is set to the built-in `delete-trailing-whitespace`, which removes both trailing whitespace and trailing blank lines. Trailing lines refer to empty lines at the end of a file. These are lines that contain no content and appear after the last non-empty line.
+By default, the `stripspace-clean-function` variable is set to the built-in `delete-trailing-whitespace`, causing *stripspace* to remove both trailing whitespace and trailing blank lines. Trailing blank lines are empty lines at the end of a file that contain no content and appear after the last non-empty line in the buffer.
 
-To prevent stripspace and the default buil-in function `delete-trailing-whitespace` from deleting trailing blank lines, set `delete-trailing-lines` to `nil`.
+To prevent *stripspace* (and `delete-trailing-whitespace`) from removing trailing blank lines, set the `delete-trailing-lines` variable to `nil`.
 
-### Why should I check if the buffer is clean?
+### What is the purpose of checking if the buffer's trailing whitespace is clean?
 
-Checking if the buffer is clean helps prevent unintended modifications to files, preserving intentional whitespace and avoiding unnecessary edits.
+Checking if the buffer's trailing whitespace clean helps prevent unintended modifications to files, preserving intentional whitespace and avoiding unnecessary edits.
 
 For example, imagine you are submitting a merge request or pull request to a repository where some files contain trailing whitespace. If you modify just one or two lines in such a file, automatically removing all trailing spaces will cause the version control diff to display unnecessary whitespace changes throughout the file. This can make it harder for the reviewer to identify the relevant modifications, complicating the review and merge process.
 
-### How to mark a buffer as clean if it is unclean?
+### How to mark a buffer's trailing whitespace as clean if it is unclean?
 
 When the `stripspace-only-if-initially-clean` variable is non-nil, *stripspace* deletes trailing whitespace only if the buffer is initially clean.
 
