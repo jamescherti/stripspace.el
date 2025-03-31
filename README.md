@@ -9,6 +9,8 @@ The **stripspace** Emacs package provides `stripspace-local-mode`, which automat
 
 (**Trailing whitespace** refers to any spaces or tabs that appear at the end of a line, beyond the last non-whitespace character. These characters serve no purpose in the content of the file and can cause issues with version control, formatting, or code consistency. Removing trailing whitespace helps maintain clean, readable files.)
 
+It also includes an optional feature (`stripspace-only-if-initially-clean`, disabled by default), which, when enabled, ensures that trailing whitespace is removed only if the buffer was initially clean. This prevents unintended modifications to buffers that already contain changes, making it useful for preserving intentional whitespace or avoiding unnecessary edits in files managed by version control.
+
 ## Features
 
 Here are the features of `(stripspace-local-mode)`:
@@ -88,9 +90,9 @@ To install *stripspace* with `use-package` and `:vc` (Emacs >= 30):
 
 ## Frequently asked question
 
-### How to mark an unclean buffer as clean?
+### How to mark a buffer as clean if it is unclean?
 
-When `stripspace-only-if-initially-clean` is non-nil, `stripspace-local-mode` deletes trailing whitespace only if the buffer is initially clean.
+When the `stripspace-only-if-initially-clean` variable is non-nil, *stripspace* deletes trailing whitespace only if the buffer is initially clean.
 
 If the buffer is not clean, it remains marked as such, preventing trailing whitespace from being removed before saving.
 
