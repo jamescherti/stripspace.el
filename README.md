@@ -101,9 +101,9 @@ Optionally, when `stripspace-local-mode` is enabled, it can check if the buffer 
 
 ### What are the differences between stripspace and trimspace?
 
-The Trimspace package only removes trailing whitespace before saving a file.
+The trimspace package only removes trailing whitespace before saving a file.
 
-The stripspace package, however, provides additional features: it can restore the cursor column, optionally check if the buffer is clean before trimming, and allows customization of the whitespace removal function. See the [features](https://github.com/jamescherti/stripspace.el?tab=readme-ov-file#features) section of the README.md for details.
+The stripspace package, however, provides additional features: it can restore the cursor column, optionally check if the buffer is clean before trimming, and customization of the whitespace removal function, etc. See the [features](https://github.com/jamescherti/stripspace.el?tab=readme-ov-file#features) section of the README.md for details.
 
 ## Author and License
 
