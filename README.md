@@ -35,9 +35,8 @@ Here are the features of `(stripspace-local-mode)`:
 ```emacs-lisp
 (use-package stripspace
   :ensure t
-  :commands stripspace-local-mode
 
-  ;; Enable for prog-mode-hook, text-mode-hook, prog-mode-hook
+  ;; Enable for prog-mode-hook, text-mode-hook, conf-mode-hook
   :hook ((prog-mode . stripspace-local-mode)
          (text-mode . stripspace-local-mode)
          (conf-mode . stripspace-local-mode))
@@ -93,6 +92,7 @@ This program is free software: you can redistribute it and/or modify it under th
 ## Links
 
 - [stripspace.el @GitHub](https://github.com/jamescherti/stripspace.el)
+- [stripspace.el @MELPA](https://melpa.org/#/stripspace)
 
 Other Emacs packages by the same author:
 - [minimal-emacs.d](https://github.com/jamescherti/minimal-emacs.d): This repository hosts a minimal Emacs configuration designed to serve as a foundation for your vanilla Emacs setup and provide a solid base for an enhanced Emacs experience.
