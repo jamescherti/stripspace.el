@@ -79,7 +79,7 @@ Here are the features of `(stripspace-local-mode)`:
 
 ### How to prevent stripspace from deleting trailing lines?
 
-By default, the `stripspace-clean-function` variable is set to the built-in `delete-trailing-whitespace`, causing *stripspace* to remove both trailing whitespace and trailing blank lines. Trailing blank lines are empty lines at the end of a file that contain no content and appear after the last non-empty line in the buffer.
+By default, the `stripspace-clean-function` variable is set to the built-in `delete-trailing-whitespace`, causing *stripspace* to remove both trailing whitespace and trailing blank lines. Trailing blank lines are empty lines at the end of a file that contain no content and appear after the last line in the buffer.
 
 To prevent *stripspace* (and `delete-trailing-whitespace`) from removing trailing blank lines, set the `delete-trailing-lines` variable to `nil`.
 
