@@ -11,13 +11,12 @@ The **stripspace** Emacs package provides `stripspace-local-mode`, which automat
 
 ## Features
 
-- The `(stripspace-local-mode)`:
-  - Before saving buffer: Automatically removes all trailing whitespace.
-  - After saving buffer: Restore the cursor's column position on the current line, including any spaces before the cursor. This ensures a consistent editing experience and prevents unintended cursor movement when saving a buffer and removing trailing whitespace. This behavior can be controller by the `stripspace-restore-column` variable (default: t).
-- Even if the buffer is narrowed, *stripspace* removes trailing whitespace from the entire buffer. This behavior, controlled by the `stripspace-ignore-restrictions` variable (default: t).
-- An optional feature `stripspace-only-if-initially-clean` (disabled by default), which, when set to non-nil, instructs stripspace to only delete whitespace when the buffer is clean initially.
+Here are the features of `(stripspace-local-mode)`:
+- Before saving buffer: Automatically removes all trailing whitespace.
+- After saving buffer: Restores the cursor's column position on the current line, including any spaces before the cursor. This ensures a consistent editing experience and prevents unintended cursor movement when saving a buffer and removing trailing whitespace. This behavior can be controller by the `stripspace-restore-column` variable (default: `t`).
+- Even if the buffer is narrowed, *stripspace* removes trailing whitespace from the entire buffer. This behavior, controlled by the `stripspace-ignore-restrictions` variable (default: `t`).
+- An optional feature `stripspace-only-if-initially-clean` (default: `nil`), which, when set to non-nil, instructs stripspace to only delete whitespace when the buffer is clean initially. The check for a clean buffer is optimized using a single regex search for trailing whitespace and another for blank lines.
 - The `stripspace-verbose` variable, when non-nil, shows in the minibuffer whether trailing whitespaces have been removed or, if not, provides the reason for their retention.
-- The `(stripspace-clean)` function forces the deletion of trailing whitespace in the current buffer. When the `stripspace-only-if-initially-clean` variable is non-nil, this function also marks the buffer as clean, ensuring that `(stripspace-local-mode)` will remove trailing whitespace the next time the buffer is saved. The function that checks if the buffer is clean is optimized by performing a single regex search for trailing whitespace and another for blank lines.
 - The functions for deleting whitespace are customizable, allowing the user to specify a custom function for removing trailing whitespace from the current buffer.
 - The `stripspace-clean-function` variable allows specifying a function for removing trailing whitespace from the current buffer. This function is called to eliminate any extraneous spaces or tabs at the end of lines. (For example, this can be set to a built-in function such as `delete-trailing-whitespace` (default) or `whitespace-cleanup`.)
 
@@ -88,6 +87,14 @@ To install *stripspace* with `use-package` and `:vc` (Emacs >= 30):
 ```
 
 ## Frequently asked question
+
+### How to mark an unclean buffer as clean?
+
+When `stripspace-only-if-initially-clean` is non-nil, `stripspace-local-mode` deletes trailing whitespace only if the buffer is initially clean.
+
+If the buffer is not clean, it remains marked as such, preventing trailing whitespace from being removed before saving.
+
+To manually mark a buffer as clean, call the `(stripspace-clean)` function, which forces the deletion of trailing whitespace and updates the buffer's state.
 
 ### What are the differences between stripspace and ws-butler?
 
