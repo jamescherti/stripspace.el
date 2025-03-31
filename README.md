@@ -75,6 +75,14 @@ In contrast, the *stripspace* package is lightweight. It operates solely on the 
 
 Optionally, when `stripspace-local-mode` is enabled, it can check if the buffer is already clean (with no whitespace) to determine whether trailing whitespace should be deleted automatically.
 
+### What are the differences between stripspace and whitespace-cleanup-mode?
+
+The *stripspace* and *whitespace-cleanup-mode* packages are quite similar. The *stripspace* author wasn't aware of *whitespace-cleanup-mode* when he developed *stripspace*.
+
+Here are the key differences:
+- Customizations: *whitespace-cleanup-mode* uses the built-in `whitespace-cleanup` function (not all users prefer `whitespace-cleanup` because it deletes more than just trailing whitespace). There is no way to change this function in *whitespace-cleanup-mode*. On the other hand, the *stripspace* package defaults to `delete-trailing-whitespace`, but users can assign a different function by setting `stripspace-clean-function`. For example, setting `stripspace-clean-function` to `whitespace-cleanup` makes *stripspace* behave like `whitespace-cleanup-mode`.
+- Performance: When `stripspace-clean-function` is set to `delete-trailing-whitespace` (default), *stripspace* function that detects whether the buffer is clean is faster than `whitespace-cleanup-mode`. (*stripspace* performs a single regex search for trailing whitespace and another for blank lines, while `whitespace-cleanup-mode` applies whitespace removal to the entire buffer. The performance of **whitespace-cleanup-mode** decreases as the buffer size increases.)
+
 ### What are the differences between stripspace and trimspace?
 
 The trimspace package only removes trailing whitespace before saving a file.
