@@ -99,6 +99,12 @@ In contrast, the *stripspace* package is lightweight. It operates solely on the 
 
 Optionally, when `stripspace-local-mode` is enabled, it can check if the buffer is already clean (with no whitespace) to determine whether trailing whitespace should be deleted automatically.
 
+### What are the differences between stripspace and trimspace?
+
+The Trimspace package only removes trailing whitespace before saving a file.
+
+The stripspace package, however, provides additional features: it can restore the cursor column, optionally check if the buffer is clean before trimming, and allows customization of the whitespace removal function. See the [features](https://github.com/jamescherti/stripspace.el?tab=readme-ov-file#features) section of the README.md for details.
+
 ## Author and License
 
 The *stripspace* Emacs package has been written by [James Cherti](https://www.jamescherti.com/) and is distributed under terms of the GNU General Public License version 3, or, at your choice, any later version.
