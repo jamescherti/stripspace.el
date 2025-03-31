@@ -21,6 +21,7 @@ It also includes an optional feature (`stripspace-only-if-initially-clean`, disa
   - [Features](#features)
   - [Installation](#installation)
   - [Frequently asked question](#frequently-asked-question)
+    - [Why should I check if the buffer is clean?](#why-should-i-check-if-the-buffer-is-clean)
     - [How to mark a buffer as clean if it is unclean?](#how-to-mark-a-buffer-as-clean-if-it-is-unclean)
     - [What are the differences between stripspace and ws-butler?](#what-are-the-differences-between-stripspace-and-ws-butler)
     - [What are the differences between stripspace and whitespace-cleanup-mode?](#what-are-the-differences-between-stripspace-and-whitespace-cleanup-mode)
@@ -74,6 +75,12 @@ Here are the features of `(stripspace-local-mode)`:
 ```
 
 ## Frequently asked question
+
+### Why should I check if the buffer is clean?
+
+Checking if the buffer is clean helps prevent unintended modifications to files, preserving intentional whitespace and avoiding unnecessary edits.
+
+For example, imagine you are submitting a merge request or pull request to a repository where some files contain trailing whitespace. If you modify just one or two lines in such a file, automatically removing all trailing spaces will cause the version control diff to display unnecessary whitespace changes throughout the file. This can make it harder for the reviewer to identify the relevant modifications, complicating the review and merge process.
 
 ### How to mark a buffer as clean if it is unclean?
 
