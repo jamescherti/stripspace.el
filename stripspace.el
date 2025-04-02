@@ -71,6 +71,25 @@ Examples of functions that can be used as `stripspace-cleanup-buffer-function':
                  function)
   :group 'stripspace)
 
+(defcustom stripspace-cleanup-region-function 'delete-trailing-whitespace
+  "Function used to remove trailing whitespace from a region.
+It takes two arguments: (START, END), representing the start and end of the
+region. The function deletes trailing whitespace between START and END.
+
+If called interactively, START and END are the start and end of the region if
+the mark is active, or of the buffer’s accessible portion if the mark is
+inactive.
+
+Examples of functions that can be used as `stripspace-cleanup-region-function':
+- `delete-trailing-whitespace'.
+- `whitespace-cleanup-region'"
+  :type '(choice (const
+                  :tag "delete-trailing-whitespace" delete-trailing-whitespace)
+                 (const
+                  :tag "whitespace-cleanup-region" whitespace-cleanup-region)
+                 function)
+  :group 'stripspace)
+
 (defcustom stripspace-clean-buffer-p-function nil
   "Function used to determine if the buffer is considered clean.
 If this is set to nil, stripspace will use an internal function to check the
