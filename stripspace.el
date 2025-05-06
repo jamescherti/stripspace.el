@@ -146,8 +146,9 @@ This variable is used to track the state of trailing whitespace in the buffer.")
 
 (defun stripspace--mode-cleanup-maybe ()
   "Delete trailing whitespace, maybe."
-  (when (or (not stripspace-only-if-initially-clean)
-            (eq stripspace--clean t))
+  (when (and (not buffer-read-only)
+             (or (not stripspace-only-if-initially-clean)
+                 (eq stripspace--clean t)))
     (stripspace-cleanup)))
 
 (defun stripspace--mode-before-save-hook ()
@@ -240,6 +241,8 @@ The BEG and END arguments respresent the beginning and end of the region."
 (defun stripspace-cleanup ()
   "Delete trailing whitespace in the current buffer or region."
   (interactive)
+  (when buffer-read-only
+    (user-error "[stripspace] Buffer is read-only"))
   (stripspace--ignore-narrowing-maybe
    (funcall stripspace-cleanup-buffer-function)
    (setq stripspace--clean t)))
