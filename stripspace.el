@@ -98,6 +98,15 @@ buffer."
   :type '(repeat symbol)
   :group 'stripspace)
 
+(defcustom stripspace-global-mode-exclude-special-buffers t
+  "If non-nil, exclude special buffers from `stripspace-global-mode'.
+
+Special buffers are non file-visiting buffers whose names begin with an asterisk
+or a space, such as *Messages* or *Help*. When this option is enabled,
+`stripspace-global-mode' will not be activated in such buffers."
+  :type 'boolean
+  :group 'stripspace)
+
 ;;; Variables
 
 (defvar stripspace-before-save-hook-depth -99
@@ -259,11 +268,24 @@ The BEG and END arguments respresent the beginning and end of the region."
 
 ;;; Internal functions
 
+(defun stripspace--special-buffer-p ()
+  "Return non-nil if the current buffer is a special buffer."
+  (let ((buffer-name (buffer-name)))
+    (and buffer-name
+         (or (string-prefix-p " " buffer-name)
+             (string-prefix-p "*" buffer-name)
+             (derived-mode-p 'special-mode)
+             (minibufferp (current-buffer)))
+         (not (buffer-file-name (buffer-base-buffer))))))
+
 (defun stripspace--global-mode-maybe-enable ()
   "Enable `stripspace-local-mode' unless in ignored modes or minibuffer."
   (unless (or (minibufferp)
-              (apply #'derived-mode-p stripspace-global-mode-exclude-modes))
-    (stripspace-local-mode)))
+              (and stripspace-global-mode-exclude-special-buffers
+                   (stripspace--special-buffer-p))
+              (apply #'derived-mode-p stripspace-global-mode-exclude-modes)
+              (bound-and-true-p stripspace-local-mode))
+    (stripspace-local-mode 1)))
 
 ;;; Modes
 
@@ -279,15 +301,20 @@ This mode ensures that trailing whitespace is removed before saving a buffer."
         (if stripspace-only-if-initially-clean
             (progn
               (when (eq stripspace--clean :undefined)
+                (stripspace--verbose-message
+                 "Checking if the buffer is clean: %s (major-mode: %s)"
+                 (buffer-name) major-mode)
                 (stripspace--ignore-narrowing-maybe
                  (setq stripspace--clean
                        (stripspace-clean-p))))
-
               (stripspace--verbose-message
-               "Mode enabled. This buffer is%s clean: %s"
+               "MODE ENABLED. This buffer is%s clean: %s (major-mode: %s)"
                (if stripspace--clean "" " NOT")
-               (buffer-name)))
-          (stripspace--verbose-message "Mode enabled: %s" (buffer-name)))
+               (buffer-name)
+               major-mode))
+          (stripspace--verbose-message "MODE ENABLED: %s (major-mode: %s)"
+                                       (buffer-name)
+                                       major-mode))
 
         ;; Mode enabled
         (add-hook 'before-save-hook #'stripspace--mode-before-save-hook
