@@ -88,6 +88,16 @@ If unsure, keep this set to t."
   :type 'boolean
   :group 'stripspace)
 
+(defcustom stripspace-global-mode-exclude-modes
+  '(view-mode special-mode minibuffer-mode comint-mode term-mode eshell-mode
+              diff-mode)
+  "Major modes for which `stripspace-global-mode' is not automatically activated.
+If the current buffer's major mode is derived from any mode in this list,
+`stripspace-global-mode' will not enable `stripspace-local-mode' for that
+buffer."
+  :type '(repeat symbol)
+  :group 'stripspace)
+
 ;;; Variables
 
 (defvar stripspace-before-save-hook-depth -99
@@ -247,6 +257,16 @@ The BEG and END arguments respresent the beginning and end of the region."
    (funcall stripspace-cleanup-buffer-function)
    (setq stripspace--clean t)))
 
+;;; Internal functions
+
+(defun stripspace--global-mode-maybe-enable ()
+  "Enable `stripspace-local-mode' unless in ignored modes or minibuffer."
+  (unless (or (minibufferp)
+              (apply #'derived-mode-p stripspace-global-mode-exclude-modes))
+    (stripspace-local-mode)))
+
+;;; Modes
+
 ;;;###autoload
 (define-minor-mode stripspace-local-mode
   "Toggle `stripspace-local-mode'.
@@ -277,6 +297,11 @@ This mode ensures that trailing whitespace is removed before saving a buffer."
     ;; Mode disabled
     (remove-hook 'before-save-hook #'stripspace--mode-before-save-hook t)
     (remove-hook 'after-save-hook #'stripspace--mode-after-save-hook t)))
+
+;;;###autoload
+(define-globalized-minor-mode stripspace-global-mode
+  stripspace-local-mode
+  stripspace--global-mode-maybe-enable)
 
 (provide 'stripspace)
 ;;; stripspace.el ends here

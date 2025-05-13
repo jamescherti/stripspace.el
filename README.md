@@ -7,7 +7,7 @@
 
 ## Introduction
 
-The **stripspace** Emacs package provides `stripspace-local-mode`, which automatically removes trailing whitespace and blank lines at the end of the buffer when saving.
+The **stripspace** Emacs package provides `stripspace-local-mode` and `stripspace-global-mode`, which automatically removes trailing whitespace and blank lines at the end of the buffer when saving.
 
 (**Trailing whitespace** refers to any spaces or tabs that appear at the end of a line, beyond the last non-whitespace character. These characters serve no purpose in the content of the file and can cause issues with version control, formatting, or code consistency. Removing trailing whitespace helps maintain clean, readable files.)
 
@@ -43,6 +43,7 @@ Here are the features of `(stripspace-local-mode)`:
 - The `stripspace-verbose` variable, when non-nil, shows in the minibuffer whether trailing whitespaces have been removed or, if not, provides the reason for their retention.
 - The functions for deleting whitespace are customizable, allowing the user to specify a custom function for removing trailing whitespace from the current buffer.
 - The `stripspace-clean-function` variable allows specifying a function for removing trailing whitespace from the current buffer. This function is called to eliminate any extraneous spaces or tabs at the end of lines. (For example, this can be set to a built-in function such as `delete-trailing-whitespace` (default) or `whitespace-cleanup`.)
+* A global mode, `stripspace-global-mode`, is available to enable the feature across all buffers. Users can exclude specific modes by adding them to the `stripspace-global-mode-exclude-modes` list.
 
 ## Installation
 
@@ -74,6 +75,8 @@ Here are the features of `(stripspace-local-mode)`:
   ;; editing experience without affecting cursor placement.
   (stripspace-restore-column t))
 ```
+
+(The `use-package` definition above uses `stripspace-local-mode`, which is preferred for enabling the mode selectively in specific major modes. For users who prefer enabling *stripspace* globally across all modes, they can instead enable `stripspace-global-mode`. Additionally, they can exclude certain major modes when `stripspace-global-mode` is enabled by adding major modes to `stripspace-global-mode-exclude-modes`.)
 
 ## Frequently asked question
 
