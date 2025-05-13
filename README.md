@@ -43,7 +43,7 @@ Here are the features of `(stripspace-local-mode)`:
 - The `stripspace-verbose` variable, when non-nil, shows in the minibuffer whether trailing whitespaces have been removed or, if not, provides the reason for their retention.
 - The functions for deleting whitespace are customizable, allowing the user to specify a custom function for removing trailing whitespace from the current buffer.
 - The `stripspace-clean-function` variable allows specifying a function for removing trailing whitespace from the current buffer. This function is called to eliminate any extraneous spaces or tabs at the end of lines. (For example, this can be set to a built-in function such as `delete-trailing-whitespace` (default) or `whitespace-cleanup`.)
-- A global mode, `stripspace-global-mode`, is available to enable the feature across all buffers. Users can exclude specific modes by adding them to the `stripspace-global-mode-exclude-modes` list. Additionally, special buffers are excluded by default because `stripspace-global-mode-exclude-special-buffers` is set to `t`.
+- A global mode, `stripspace-global-mode`, is available to enable the feature across all buffers. Users can exclude specific modes by adding them to the `stripspace-global-mode-exclude-modes` list. Additionally, special buffers are excluded by default because `stripspace-global-mode-exclude-special-buffers` is set to `t`. However, the author recommends using the local mode instead, which is preferred for enabling the mode selectively in specific major modes.
 
 ## Installation
 

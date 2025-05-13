@@ -274,8 +274,7 @@ The BEG and END arguments respresent the beginning and end of the region."
     (and buffer-name
          (or (string-prefix-p " " buffer-name)
              (string-prefix-p "*" buffer-name)
-             (derived-mode-p 'special-mode)
-             (minibufferp (current-buffer)))
+             (derived-mode-p 'special-mode))
          (not (buffer-file-name (buffer-base-buffer))))))
 
 (defun stripspace--global-mode-maybe-enable ()
@@ -305,13 +304,11 @@ This mode ensures that trailing whitespace is removed before saving a buffer."
                  "Checking if the buffer is clean: %s (major-mode: %s)"
                  (buffer-name) major-mode)
                 (stripspace--ignore-narrowing-maybe
-                 (setq stripspace--clean
-                       (stripspace-clean-p))))
+                 (setq stripspace--clean (stripspace-clean-p))))
+
               (stripspace--verbose-message
                "MODE ENABLED. This buffer is%s clean: %s (major-mode: %s)"
-               (if stripspace--clean "" " NOT")
-               (buffer-name)
-               major-mode))
+               (if stripspace--clean "" " NOT") (buffer-name) major-mode))
           (stripspace--verbose-message "MODE ENABLED: %s (major-mode: %s)"
                                        (buffer-name)
                                        major-mode))
