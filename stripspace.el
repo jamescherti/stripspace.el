@@ -150,6 +150,7 @@ This variable is used to track the state of trailing whitespace in the buffer.")
 
 (defmacro stripspace--verbose-message (&rest args)
   "Display a verbose message with the same ARGS arguments as `message'."
+  (declare (indent 0) (debug t))
   `(progn
      (when stripspace-verbose
        (stripspace--message
