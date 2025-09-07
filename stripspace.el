@@ -80,6 +80,24 @@ and end of the region."
   :type '(choice function (const nil))
   :group 'stripspace)
 
+(defcustom stripspace-normalize-indentation nil
+  "When non-nil, convert buffer tabs and spaces according to `indent-tabs-mode'."
+  :type 'boolean
+  :group 'stripspace)
+
+(defcustom stripspace-normalize-indentation-function
+  'stripspace--normalize-indentation
+  "Function to convert buffer tabs and spaces according to `indent-tabs-mode'.
+
+This function is invoked only when the variable
+`stripspace-normalize-indentation' is non-nil."
+  :type '(choice
+          (const
+           :tag "Use `stripspace--normalize-indentation'"
+           stripspace--normalize-indentation)
+          function)
+  :group 'stripspace)
+
 (defcustom stripspace-ignore-restrictions t
   "If non-nil, ignore restrictions such as `narrow-to-region'.
 When enabled, whitespace removal applies to the whole buffer, even if a region
@@ -199,15 +217,15 @@ back to its original column while ensuring the buffer remains unmodified."
 
     ;; Display a message
     (stripspace--verbose-message
-     "%s"
-     (cond
-      ((eq stripspace--clean :undefined)
-       (format "Run: %s" stripspace-cleanup-buffer-function))
-      (stripspace--clean
-       (format "Run (Reason: The buffer is clean): %s"
-               stripspace-cleanup-buffer-function))
-      (t
-       (format "Ignored (Reason: The buffer is not clean)"))))))
+      "%s"
+      (cond
+       ((eq stripspace--clean :undefined)
+        (format "Run: %s" stripspace-cleanup-buffer-function))
+       (stripspace--clean
+        (format "Run (Reason: The buffer is clean): %s"
+                stripspace-cleanup-buffer-function))
+       (t
+        (format "Ignored (Reason: The buffer is not clean)"))))))
 
 (defun stripspace--optimized-delete-trailing-whitespace-clean-p (beg end)
   "Return non-nil if no trailing whitespace is present.
@@ -257,6 +275,30 @@ The BEG and END arguments respresent the beginning and end of the region."
 
 ;;; Autoloaded functions
 
+(defun stripspace--normalize-indentation ()
+  "Convert buffer tabs and spaces according to `indent-tabs-mode'.
+
+This is disabled by default and can be enabled by setting
+`stripspace-normalize-indentation' to t.
+
+If `indent-tabs-mode' is non-nil, consecutive spaces at the beginning of lines
+are converted into tabs where possible.
+
+If `indent-tabs-mode' is nil, all tabs are replaced with the appropriate number
+of spaces.
+
+This operates on the entire buffer, processing each line individually from
+beginning to end, ensuring consistent indentation and alignment according to the
+current tab width settings."
+  (interactive)
+  (let ((normalize-indentation-fun (if indent-tabs-mode #'tabify #'untabify)))
+    (save-excursion
+      (goto-char (point-min))
+      (while (not (eobp))
+        (funcall normalize-indentation-fun (point)
+                 (progn (skip-chars-forward " \t") (point)))
+        (forward-line 1)))))
+
 ;;;###autoload
 (defun stripspace-cleanup ()
   "Delete trailing whitespace in the current buffer or region."
@@ -265,6 +307,8 @@ The BEG and END arguments respresent the beginning and end of the region."
     (user-error "[stripspace] Buffer is read-only"))
   (stripspace--ignore-narrowing-maybe
    (funcall stripspace-cleanup-buffer-function)
+   (when stripspace-normalize-indentation
+     (funcall stripspace-normalize-indentation-function))
    (setq stripspace--clean t)))
 
 ;;; Internal functions
@@ -302,14 +346,14 @@ This mode ensures that trailing whitespace is removed before saving a buffer."
             (progn
               (when (eq stripspace--clean :undefined)
                 (stripspace--verbose-message
-                 "Checking if the buffer is clean: %s (major-mode: %s)"
-                 (buffer-name) major-mode)
+                  "Checking if the buffer is clean: %s (major-mode: %s)"
+                  (buffer-name) major-mode)
                 (stripspace--ignore-narrowing-maybe
                  (setq stripspace--clean (stripspace-clean-p))))
 
               (stripspace--verbose-message
-               "MODE ENABLED. This buffer is%s clean: %s (major-mode: %s)"
-               (if stripspace--clean "" " NOT") (buffer-name) major-mode))
+                "MODE ENABLED. This buffer is%s clean: %s (major-mode: %s)"
+                (if stripspace--clean "" " NOT") (buffer-name) major-mode))
           (stripspace--verbose-message "MODE ENABLED: %s (major-mode: %s)"
                                        (buffer-name)
                                        major-mode))

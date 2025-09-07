@@ -17,18 +17,19 @@ It also includes an optional feature (`stripspace-only-if-initially-clean`, disa
 ## Table of Contents
 
 - [stripspace.el - Ensure Emacs Automatically removes trailing whitespace before saving a buffer, with an option to preserve the cursor column](#stripspaceel---ensure-emacs-automatically-removes-trailing-whitespace-before-saving-a-buffer-with-an-option-to-preserve-the-cursor-column)
-  - [Introduction](#introduction)
-  - [Features](#features)
-  - [Installation](#installation)
-  - [Frequently asked question](#frequently-asked-question)
-    - [How to prevent stripspace from deleting trailing lines?](#how-to-prevent-stripspace-from-deleting-trailing-lines)
-    - [What is the purpose of checking if the buffer's trailing whitespace is clean?](#what-is-the-purpose-of-checking-if-the-buffers-trailing-whitespace-is-clean)
-    - [How to mark a buffer's trailing whitespace as clean if it is unclean?](#how-to-mark-a-buffers-trailing-whitespace-as-clean-if-it-is-unclean)
-    - [What are the differences between stripspace and ws-butler?](#what-are-the-differences-between-stripspace-and-ws-butler)
-    - [What are the differences between stripspace and whitespace-cleanup-mode?](#what-are-the-differences-between-stripspace-and-whitespace-cleanup-mode)
-    - [What are the differences between stripspace and trimspace?](#what-are-the-differences-between-stripspace-and-trimspace)
-  - [Author and License](#author-and-license)
-  - [Links](#links)
+    - [Introduction](#introduction)
+    - [Features](#features)
+    - [Installation](#installation)
+    - [Frequently asked question](#frequently-asked-question)
+        - [How to prevent stripspace from deleting trailing lines?](#how-to-prevent-stripspace-from-deleting-trailing-lines)
+        - [What is the purpose of checking if the buffer's trailing whitespace is clean? (Disabled by Default)](#what-is-the-purpose-of-checking-if-the-buffers-trailing-whitespace-is-clean-disabled-by-default)
+        - [Normalize Indentation: Convert Tabs to Spaces or Spaces to Tabs (Disabled by Default)](#normalize-indentation-convert-tabs-to-spaces-or-spaces-to-tabs-disabled-by-default)
+        - [How to mark a buffer's trailing whitespace as clean if it is unclean?](#how-to-mark-a-buffers-trailing-whitespace-as-clean-if-it-is-unclean)
+        - [What are the differences between stripspace and ws-butler?](#what-are-the-differences-between-stripspace-and-ws-butler)
+        - [What are the differences between stripspace and whitespace-cleanup-mode?](#what-are-the-differences-between-stripspace-and-whitespace-cleanup-mode)
+        - [What are the differences between stripspace and trimspace?](#what-are-the-differences-between-stripspace-and-trimspace)
+    - [Author and License](#author-and-license)
+    - [Links](#links)
 
 <!-- markdown-toc end -->
 
@@ -44,6 +45,7 @@ Here are the features of `(stripspace-local-mode)`:
 - The functions for deleting whitespace are customizable, allowing the user to specify a custom function for removing trailing whitespace from the current buffer.
 - The `stripspace-clean-function` variable allows specifying a function for removing trailing whitespace from the current buffer. This function is called to eliminate any extraneous spaces or tabs at the end of lines. (For example, this can be set to a built-in function such as `delete-trailing-whitespace` (default) or `whitespace-cleanup`.)
 - A global mode, `stripspace-global-mode`, is available to enable the feature across all buffers. Users can exclude specific modes by adding them to the `stripspace-global-mode-exclude-modes` list. Additionally, special buffers are excluded by default because `stripspace-global-mode-exclude-special-buffers` is set to `t`. However, the author recommends using the local mode instead, which is preferred for enabling the mode selectively in specific major modes.
+- Normalize Indentation: Convert indentation tabs to spaces or spaces to tabs (Disabled by Default).
 
 ## Installation
 
@@ -78,6 +80,7 @@ Here are the features of `(stripspace-local-mode)`:
 
 (The `use-package` definition above uses `stripspace-local-mode`, which is preferred for enabling the mode selectively in specific major modes. Users who prefer to enable *stripspace* globally across all modes can instead enable `stripspace-global-mode`. Additionally, they can exclude certain major modes when `stripspace-global-mode` is enabled by adding those modes to `stripspace-global-mode-exclude-modes`. Special buffers are excluded by default because `stripspace-global-mode-exclude-special-buffers` is set to `t`.)
 
+
 ## Frequently asked question
 
 ### How to prevent stripspace from deleting trailing lines?
@@ -86,11 +89,30 @@ By default, the `stripspace-clean-function` variable is set to the built-in `del
 
 To prevent *stripspace* (and the `delete-trailing-whitespace` function) from removing trailing blank lines, set the `delete-trailing-lines` variable to `nil`.
 
-### What is the purpose of checking if the buffer's trailing whitespace is clean?
+### What is the purpose of checking if the buffer's trailing whitespace is clean? (Disabled by Default)
 
 Checking if the buffer's trailing whitespace clean helps prevent unintended modifications to files, preserving intentional whitespace and avoiding unnecessary edits.
 
 For example, imagine you are submitting a merge request or pull request to a repository where some files contain trailing whitespace. If you modify just one or two lines in such a file, automatically removing all trailing spaces will cause the version control diff to display unnecessary whitespace changes throughout the file. This can make it harder for the reviewer to identify the relevant modifications, complicating the review and merge process.
+
+### Normalize Indentation: Convert Tabs to Spaces or Spaces to Tabs (Disabled by Default)
+
+The `stripspace-normalize-indentation` option adjusts the buffer's indentation to match the setting of the `indent-tabs-mode` variable:
+
+* **Tabs to spaces:** If `indent-tabs-mode` is `nil`, all indentation tabs in the buffer are converted to spaces.
+* **Spaces to tabs:** If `indent-tabs-mode` is `t`, contiguous spaces used for indentation are converted to tabs.
+
+This feature can be enabled by setting the `stripspace-convert-tabs-and-spaces` option to `t`. *(The conversion behavior can be further customized using `stripspace-convert-tabs-and-spaces-function`, which defaults to the built-in stripspace function.)*
+
+```elisp
+;; The `stripspace-normalize-indentation' option adjusts the buffer's
+;; indentation to match the setting of the `indent-tabs-mode' variable:
+;; - Tabs to spaces: If `indent-tabs-mode' is nil, all indentation tabs in
+;;   the buffer are converted to spaces.
+;; - Spaces to tabs: If `indent-tabs-mode' is t, contiguous spaces used
+;;   for indentation are converted to tabs.
+(setq stripspace-normalize-indentation nil)  ; Set to t to enable
+```
 
 ### How to mark a buffer's trailing whitespace as clean if it is unclean?
 
