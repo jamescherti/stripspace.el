@@ -3,7 +3,7 @@
 [![MELPA](https://melpa.org/packages/stripspace-badge.svg)](https://melpa.org/#/stripspace)
 [![MELPA Stable](https://stable.melpa.org/packages/stripspace-badge.svg)](https://stable.melpa.org/#/stripspace)
 ![License](https://img.shields.io/github/license/jamescherti/stripspace.el)
-![](https://raw.githubusercontent.com/jamescherti/stripspace.el/main/.images/made-for-gnu-emacs.svg)
+![](https://jamescherti.com/misc/made-for-gnu-emacs.svg)
 
 ## Introduction
 
