@@ -16,7 +16,7 @@ The *stripspace* Emacs package additionally provides the following features:
 - **Normalizes indentation** by converting leading tabs to spaces or leading spaces to tabs, without modifying tabs or spaces within the text. (*Disabled by default.*)
 - **Restricts trailing whitespace deletion to buffers that were initially clean**. When enabled, trailing whitespace is removed only if the buffer was clean before saving. (*Disabled by default.*)
 
-(By default, `stripspace-global-mode` enables stripspace in all modes except those listed in `stripspace-global-mode-exclude-modes`. By default, the excluded modes are: `view-mode`, `special-mode`, `minibuffer-mode`, `comint-mode`, `term-mode`, `eshell-mode`, `diff-mode`, `org-agenda-mode`, `message-mode`, and `markdown-mode`. `markdown-mode` is excluded by default because trailing spaces are often used intentionally for line breaks in Markdown.)
+(By default, `stripspace-global-mode` enables stripspace in all modes except those listed in the `stripspace-global-mode-exclude-modes` variable. By default, the excluded modes are: *view-mode*, *special-mode*, *minibuffer-mode*, *comint-mode*, *term-mode*, *eshell-mode*, *diff-mode*, *org-agenda-mode*, *message-mode*, and *markdown-mode*. *markdown-mode* is excluded by default because trailing spaces are often used intentionally for line breaks in Markdown.)
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 ## Table of Contents
