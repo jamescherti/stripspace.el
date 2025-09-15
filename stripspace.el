@@ -108,7 +108,7 @@ If unsure, keep this set to t."
 
 (defcustom stripspace-global-mode-exclude-modes
   '(view-mode special-mode minibuffer-mode comint-mode term-mode eshell-mode
-              diff-mode)
+              diff-mode org-agenda-mode message-mode markdown-mode)
   "Major modes for which `stripspace-global-mode' is not automatically activated.
 If the current buffer's major mode is derived from any mode in this list,
 `stripspace-global-mode' will not enable `stripspace-local-mode' for that
