@@ -30,7 +30,7 @@ The *stripspace* Emacs package additionally provides the following features:
         - [What is the purpose of checking if the buffer's trailing whitespace is clean? (Disabled by Default)](#what-is-the-purpose-of-checking-if-the-buffers-trailing-whitespace-is-clean-disabled-by-default)
         - [Normalize Indentation: Convert Tabs to Spaces or Spaces to Tabs (Disabled by Default)](#normalize-indentation-convert-tabs-to-spaces-or-spaces-to-tabs-disabled-by-default)
         - [How to mark a buffer's trailing whitespace as clean if it is unclean?](#how-to-mark-a-buffers-trailing-whitespace-as-clean-if-it-is-unclean)
-        - [Why Delete Trailing Whitespace? Can't Tools Like Git or Diff Ignore It?](#why-delete-trailing-whitespace-cant-tools-like-git-or-diff-ignore-it)
+        - [Why delete trailing whitespace? Can't tools like Git or diff ignore it?](#why-delete-trailing-whitespace-cant-tools-like-git-or-diff-ignore-it)
         - [What are the differences between stripspace and ws-butler?](#what-are-the-differences-between-stripspace-and-ws-butler)
         - [What are the differences between stripspace and whitespace-cleanup-mode?](#what-are-the-differences-between-stripspace-and-whitespace-cleanup-mode)
         - [What are the differences between stripspace and trimspace?](#what-are-the-differences-between-stripspace-and-trimspace)
@@ -128,13 +128,17 @@ If the buffer is not clean, it remains marked as such, preventing trailing white
 
 To manually mark a buffer as clean, call the `(stripspace-clean)` function, which forces the deletion of trailing whitespace and updates the buffer's state.
 
-### Why Delete Trailing Whitespace? Can't Tools Like Git or Diff Ignore It?
+### Why delete trailing whitespace? Can't tools like Git or diff ignore it?
 
 Tools like Git or diff can be configured to ignore trailing whitespace.
 
 However, consistently removing trailing whitespace is still useful:
-- It **prevents conflicts caused by unnecessary end-of-line spaces**.
-- It reduces unnecessary noise in version control systems, making code reviews and diffs easier to read and understand.
+- It **prevents conflicts caused by unnecessary end-of-line spaces**, ensuring that merges and collaborative work remain smooth and predictable.
+- It **eliminates noise in version control systems**, allowing code reviews and diffs to focus solely on meaningful changes, which saves time and reduces cognitive load.
+- It **enforces intentionality in the code**, so every line and character serves a purpose, making the codebase easier to understand, maintain, and debug over time.
+* It **improves collaboration**, as unintentional whitespace does not disrupt formatting or create frustration for other contributors.
+
+Consistently removing trailing whitespace is not just a stylistic preference, it is a practice that directly improves readability, maintainability, and productivity.
 
 ### What are the differences between stripspace and ws-butler?
 
