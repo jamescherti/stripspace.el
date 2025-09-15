@@ -31,6 +31,7 @@ The *stripspace* Emacs package additionally provides the following features:
         - [Normalize Indentation: Convert Tabs to Spaces or Spaces to Tabs (Disabled by Default)](#normalize-indentation-convert-tabs-to-spaces-or-spaces-to-tabs-disabled-by-default)
         - [How to mark a buffer's trailing whitespace as clean if it is unclean?](#how-to-mark-a-buffers-trailing-whitespace-as-clean-if-it-is-unclean)
         - [Why delete trailing whitespace? Can't tools like Git or diff ignore it?](#why-delete-trailing-whitespace-cant-tools-like-git-or-diff-ignore-it)
+        - [How to remove markdown-mode from the excluded modes in stripspace-global-mode?](#how-to-remove-markdown-mode-from-the-excluded-modes-in-stripspace-global-mode)
         - [What are the differences between stripspace and ws-butler?](#what-are-the-differences-between-stripspace-and-ws-butler)
         - [What are the differences between stripspace and whitespace-cleanup-mode?](#what-are-the-differences-between-stripspace-and-whitespace-cleanup-mode)
         - [What are the differences between stripspace and trimspace?](#what-are-the-differences-between-stripspace-and-trimspace)
@@ -139,6 +140,21 @@ However, consistently removing trailing whitespace is still useful:
 * It **improves collaboration**, as unintentional whitespace does not disrupt formatting or create frustration for other contributors.
 
 Consistently removing trailing whitespace is not just a stylistic preference, it is a practice that directly improves readability, maintainability, and productivity.
+
+### How to remove markdown-mode from the excluded modes in stripspace-global-mode?
+
+By default, `stripspace-global-mode` **excludes `markdown-mode` by default because** trailing spaces are often used intentionally for line breaks.
+
+To allow `stripspace-global-mode` to remove trailing whitespace in `markdown-mode` as well, remove it from the list of excluded modes using:
+
+```emacs-lisp
+;; Remove 'markdown-mode' from the list of modes excluded by `stripspace-global-mode'
+(setq stripspace-global-mode-exclude-modes
+      (delq 'markdown-mode
+            stripspace-global-mode-exclude-modes))
+```
+
+This ensures that all other excluded modes remain unaffected while allowing `stripspace-global-mode` to process Markdown buffers.
 
 ### What are the differences between stripspace and ws-butler?
 
