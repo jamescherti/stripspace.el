@@ -11,6 +11,8 @@ The **stripspace** Emacs package provides `stripspace-local-mode` and `stripspac
 
 (**Trailing whitespace** refers to any spaces or tabs that appear at the end of a line, beyond the last non-whitespace character. These characters serve no purpose in the content of the file and can cause issues with version control, formatting, or code consistency. Removing trailing whitespace helps maintain clean, readable files.)
 
+If this enhances your workflow, please show your support by **⭐ starring stripspace.el on GitHub** to help more Emacs users discover its benefits.
+
 The *stripspace* Emacs package additionally provides the following features:
 - **Restores the cursor column on the current line**, including spaces before the cursor. *This ensures a consistent editing experience and prevents unintended cursor movement when saving a buffer after removing trailing whitespace.*
 - **Normalizes indentation** by converting leading tabs to spaces or leading spaces to tabs, without modifying tabs or spaces within the text. (*Disabled by default.*)
