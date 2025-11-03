@@ -335,8 +335,7 @@ current tab width settings."
 
 ;;;###autoload
 (define-minor-mode stripspace-local-mode
-  "Toggle `stripspace-local-mode'.
-This mode ensures that trailing whitespace is removed before saving a buffer."
+  "Minor mode that removes trailing whitespace before a buffer is saved."
   :global nil
   :lighter " StripSPC"
   :group 'stripspace
