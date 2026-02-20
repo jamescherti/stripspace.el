@@ -195,7 +195,14 @@ This function is triggered by `before-save-hook'. It stores the current column
 in a buffer-local variable and deletes any trailing whitespace."
   (when (bound-and-true-p stripspace-local-mode)
     (setq stripspace--column (current-column))
-    (stripspace--mode-cleanup-maybe)))
+    (condition-case err
+        (let ((inhibit-interaction t))
+          (ignore inhibit-interaction)
+          (stripspace--mode-cleanup-maybe))
+      (inhibited-interaction
+       (stripspace--verbose-message
+         "Cleanup aborted: user interaction was requested but inhibited (%s)"
+         (error-message-string err))))))
 
 (defun stripspace--mode-after-save-hook ()
   "Restore the cursor to the previously saved column after saving.
@@ -254,24 +261,33 @@ The BEG and END arguments respresent the beginning and end of the region."
 The BEG and END arguments respresent the beginning and end of the region."
   (unless beg (setq beg (point-min)))
   (unless end (setq end (point-max)))
-  (cond
-   ;; Optimized function
-   ((or (not stripspace-cleanup-buffer-function)
-        (eq stripspace-cleanup-buffer-function
-            'delete-trailing-whitespace))
-    (stripspace--optimized-delete-trailing-whitespace-clean-p beg end))
+  (condition-case err
+      (let ((inhibit-interaction t))
+        (ignore inhibit-interaction)
+        (cond
+         ;; Optimized function
+         ((or (not stripspace-cleanup-buffer-function)
+              (eq stripspace-cleanup-buffer-function
+                  'delete-trailing-whitespace))
+          (stripspace--optimized-delete-trailing-whitespace-clean-p beg end))
 
-   (stripspace-clean-buffer-p-function
-    (funcall stripspace-clean-buffer-p-function beg end))
+         (stripspace-clean-buffer-p-function
+          (funcall stripspace-clean-buffer-p-function beg end))
 
-   (t
-    (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
-      (with-temp-buffer
-        (insert contents)
-        (set-buffer-modified-p nil)
-        (let (stripspace--clean)
-          (stripspace-cleanup))
-        (not (buffer-modified-p)))))))
+         (t
+          (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
+            (with-temp-buffer
+              (insert contents)
+              (set-buffer-modified-p nil)
+              (let (stripspace--clean)
+                (stripspace-cleanup))
+              (not (buffer-modified-p)))))))
+    (inhibited-interaction
+     (stripspace--verbose-message
+       (concat "Cleanliness check aborted (`stripspace-clean-p'): user "
+               "interaction was requested but inhibited (%s)")
+       (error-message-string err))
+     nil)))
 
 ;;; Autoloaded functions
 
