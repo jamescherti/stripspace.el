@@ -24,21 +24,21 @@ The *stripspace* Emacs package additionally provides the following features:
 ## Table of Contents
 
 - [stripspace.el - Ensure Emacs Automatically removes trailing whitespace before saving a buffer, with an option to preserve the cursor column](#stripspaceel---ensure-emacs-automatically-removes-trailing-whitespace-before-saving-a-buffer-with-an-option-to-preserve-the-cursor-column)
-    - [Introduction](#introduction)
-    - [Features](#features)
-    - [Installation](#installation)
-    - [Frequently asked question](#frequently-asked-question)
-        - [How to prevent stripspace from deleting trailing lines?](#how-to-prevent-stripspace-from-deleting-trailing-lines)
-        - [What is the purpose of checking if the buffer's trailing whitespace is clean? (Disabled by Default)](#what-is-the-purpose-of-checking-if-the-buffers-trailing-whitespace-is-clean-disabled-by-default)
-        - [Normalize Indentation: Convert Tabs to Spaces or Spaces to Tabs (Disabled by Default)](#normalize-indentation-convert-tabs-to-spaces-or-spaces-to-tabs-disabled-by-default)
-        - [How to mark a buffer's trailing whitespace as clean if it is unclean?](#how-to-mark-a-buffers-trailing-whitespace-as-clean-if-it-is-unclean)
-        - [Why delete trailing whitespace? Can't tools like Git or diff ignore it?](#why-delete-trailing-whitespace-cant-tools-like-git-or-diff-ignore-it)
-        - [How to remove markdown-mode from the excluded modes in stripspace-global-mode?](#how-to-remove-markdown-mode-from-the-excluded-modes-in-stripspace-global-mode)
-        - [What are the differences between stripspace and ws-butler?](#what-are-the-differences-between-stripspace-and-ws-butler)
-        - [What are the differences between stripspace and whitespace-cleanup-mode?](#what-are-the-differences-between-stripspace-and-whitespace-cleanup-mode)
-        - [What are the differences between stripspace and trimspace?](#what-are-the-differences-between-stripspace-and-trimspace)
-    - [Author and License](#author-and-license)
-    - [Links](#links)
+  - [Introduction](#introduction)
+  - [Features](#features)
+  - [Installation](#installation)
+  - [Frequently asked question](#frequently-asked-question)
+    - [How to prevent stripspace from deleting trailing lines?](#how-to-prevent-stripspace-from-deleting-trailing-lines)
+    - [What is the purpose of checking if the buffer's trailing whitespace is clean? (Disabled by Default)](#what-is-the-purpose-of-checking-if-the-buffers-trailing-whitespace-is-clean-disabled-by-default)
+    - [Normalize Indentation: Convert Tabs to Spaces or Spaces to Tabs (Disabled by Default)](#normalize-indentation-convert-tabs-to-spaces-or-spaces-to-tabs-disabled-by-default)
+    - [How to mark a buffer's trailing whitespace as clean if it is unclean?](#how-to-mark-a-buffers-trailing-whitespace-as-clean-if-it-is-unclean)
+    - [Why delete trailing whitespace? Can't tools like Git or diff ignore it?](#why-delete-trailing-whitespace-cant-tools-like-git-or-diff-ignore-it)
+    - [How to remove markdown-mode from the excluded modes in stripspace-global-mode?](#how-to-remove-markdown-mode-from-the-excluded-modes-in-stripspace-global-mode)
+    - [What are the differences between stripspace and ws-butler?](#what-are-the-differences-between-stripspace-and-ws-butler)
+    - [What are the differences between stripspace and whitespace-cleanup-mode?](#what-are-the-differences-between-stripspace-and-whitespace-cleanup-mode)
+    - [What are the differences between stripspace and trimspace?](#what-are-the-differences-between-stripspace-and-trimspace)
+  - [Author and License](#author-and-license)
+  - [Links](#links)
 
 <!-- markdown-toc end -->
 
@@ -64,8 +64,6 @@ Here are the features of `(stripspace-local-mode)`:
 
 ```emacs-lisp
 (use-package stripspace
-  :ensure t
-
   ;; Enable for prog-mode-hook, text-mode-hook, conf-mode-hook
   :hook ((prog-mode . stripspace-local-mode)
          (text-mode . stripspace-local-mode)
