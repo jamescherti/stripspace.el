@@ -34,6 +34,7 @@ The *stripspace* Emacs package additionally provides the following features:
     - [How to mark a buffer's trailing whitespace as clean if it is unclean?](#how-to-mark-a-buffers-trailing-whitespace-as-clean-if-it-is-unclean)
     - [Why delete trailing whitespace? Can't tools like Git or diff ignore it?](#why-delete-trailing-whitespace-cant-tools-like-git-or-diff-ignore-it)
     - [How to remove markdown-mode from the excluded modes in stripspace-global-mode?](#how-to-remove-markdown-mode-from-the-excluded-modes-in-stripspace-global-mode)
+    - [Why use stripspace over the built-in delete-trailing-whitespace?](#why-use-stripspace-over-the-built-in-delete-trailing-whitespace)
     - [What are the differences between stripspace and ws-butler?](#what-are-the-differences-between-stripspace-and-ws-butler)
     - [What are the differences between stripspace and whitespace-cleanup-mode?](#what-are-the-differences-between-stripspace-and-whitespace-cleanup-mode)
     - [What are the differences between stripspace and trimspace?](#what-are-the-differences-between-stripspace-and-trimspace)
@@ -155,6 +156,16 @@ To allow `stripspace-global-mode` to remove trailing whitespace in `markdown-mod
 ```
 
 This ensures that all other excluded modes remain unaffected while allowing `stripspace-global-mode` to process Markdown buffers.
+
+### Why use stripspace over the built-in delete-trailing-whitespace?
+
+The **stripspace** package provides configurable modes (`stripspace-global-mode` and `stripspace-local-mode`), whereas `delete-trailing-whitespace` is simply a function (this built-in function is used by **stripspace** to remove trailing whitespace and is customizable via `stripspace-cleanup-buffer-function`).
+
+Beyond removing trailing whitespace, **stripspace** also:
+
+* Restores the cursor column on the current line
+* Normalizes indentation by converting leading tabs to spaces or leading spaces to tabs, without modifying tabs or spaces within the text (disabled by default)
+* Can restrict trailing whitespace deletion to buffers that were initially clean (disabled by default)
 
 ### What are the differences between stripspace and ws-butler?
 
