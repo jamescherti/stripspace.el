@@ -1,4 +1,4 @@
-# stripspace.el - Ensure Emacs Automatically removes trailing whitespace before saving a buffer, with an option to preserve the cursor column
+# stripspace.el - Ensure Emacs automatically removes trailing whitespace before saving buffers (optionally preserving the cursor column, normalizing indentation, and restricting whitespace cleanup to clean buffers)
 ![Build Status](https://github.com/jamescherti/stripspace.el/actions/workflows/ci.yml/badge.svg)
 [![MELPA](https://melpa.org/packages/stripspace-badge.svg)](https://melpa.org/#/stripspace)
 [![MELPA Stable](https://stable.melpa.org/packages/stripspace-badge.svg)](https://stable.melpa.org/#/stripspace)
@@ -23,7 +23,7 @@ The *stripspace* Emacs package additionally provides the following features:
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 ## Table of Contents
 
-- [stripspace.el - Ensure Emacs Automatically removes trailing whitespace before saving a buffer, with an option to preserve the cursor column](#stripspaceel---ensure-emacs-automatically-removes-trailing-whitespace-before-saving-a-buffer-with-an-option-to-preserve-the-cursor-column)
+- [stripspace.el - Ensure Emacs automatically removes trailing whitespace before saving buffers (optionally preserving the cursor column, normalizing indentation, and restricting whitespace cleanup to clean buffers)](#stripspaceel---ensure-emacs-automatically-removes-trailing-whitespace-before-saving-buffers-optionally-preserving-the-cursor-column-normalizing-indentation-and-restricting-whitespace-cleanup-to-clean-buffers)
   - [Introduction](#introduction)
   - [Features](#features)
   - [Installation](#installation)
@@ -163,9 +163,9 @@ The **stripspace** package provides configurable modes (`stripspace-global-mode`
 
 Beyond removing trailing whitespace, **stripspace** also:
 
-* Restores the cursor column on the current line
-* Normalizes indentation by converting leading tabs to spaces or leading spaces to tabs, without modifying tabs or spaces within the text (disabled by default)
-* Can restrict trailing whitespace deletion to buffers that were initially clean (disabled by default)
+* Restores the cursor column on the current line. (Including spaces before the cursor. This ensures a consistent editing experience and prevents unintended cursor movement when saving a buffer after removing trailing whitespace)
+* Disabled by default: Normalizes indentation by converting leading tabs to spaces or leading spaces to tabs, without modifying tabs or spaces within the text.
+* Disabled by default: Can restrict trailing whitespace deletion to buffers that were initially clean.
 
 ### What are the differences between stripspace and ws-butler?
 
