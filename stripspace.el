@@ -109,7 +109,7 @@ If unsure, keep this set to t."
 (defcustom stripspace-global-mode-exclude-modes
   '(view-mode special-mode minibuffer-mode comint-mode term-mode eshell-mode
               diff-mode org-agenda-mode message-mode markdown-mode)
-  "Major modes for which `stripspace-global-mode' is not automatically activated.
+  "Major modes for which `stripspace-global-mode' is not activated.
 If the current buffer's major mode is derived from any mode in this list,
 `stripspace-global-mode' will not enable `stripspace-local-mode' for that
 buffer."
@@ -187,7 +187,7 @@ This variable is used to track the state of trailing whitespace in the buffer.")
   (when (and (not buffer-read-only)
              (or (not stripspace-only-if-initially-clean)
                  (eq stripspace--clean t)))
-    (stripspace-cleanup)))
+    (stripspace-cleanup-buffer)))
 
 (defun stripspace--mode-before-save-hook ()
   "Save the current cursor column position and remove trailing whitespace.
@@ -275,12 +275,13 @@ The BEG and END arguments respresent the beginning and end of the region."
           (funcall stripspace-clean-buffer-p-function beg end))
 
          (t
-          (let ((contents (buffer-substring-no-properties (point-min) (point-max))))
+          (let ((contents (buffer-substring-no-properties (point-min)
+                                                          (point-max))))
             (with-temp-buffer
               (insert contents)
               (set-buffer-modified-p nil)
               (let (stripspace--clean)
-                (stripspace-cleanup))
+                (stripspace-cleanup-buffer))
               (not (buffer-modified-p)))))))
     (inhibited-interaction
      (stripspace--verbose-message
@@ -306,7 +307,6 @@ of spaces.
 This operates on the entire buffer, processing each line individually from
 beginning to end, ensuring consistent indentation and alignment according to the
 current tab width settings."
-  (interactive)
   (let ((normalize-indentation-fun (if indent-tabs-mode #'tabify #'untabify)))
     (save-excursion
       (goto-char (point-min))
@@ -316,8 +316,8 @@ current tab width settings."
         (forward-line 1)))))
 
 ;;;###autoload
-(defun stripspace-cleanup ()
-  "Delete trailing whitespace in the current buffer or region."
+(defun stripspace-cleanup-buffer ()
+  "Delete trailing whitespace in the current buffer."
   (interactive)
   (when buffer-read-only
     (user-error "[stripspace] Buffer is read-only"))
@@ -326,6 +326,22 @@ current tab width settings."
    (when stripspace-normalize-indentation
      (funcall stripspace-normalize-indentation-function))
    (setq stripspace--clean t)))
+
+;;;###autoload
+(defalias 'stripspace-cleanup #'stripspace-cleanup-buffer)
+(make-obsolete 'stripspace-cleanup 'stripspace-cleanup-buffer "1.0.5")
+
+;;;###autoload
+(defun stripspace-cleanup-region (beg end)
+  "Delete trailing whitespace in the region between BEG and END."
+  (interactive "r")
+  (when buffer-read-only
+    (user-error "[stripspace] Buffer is read-only"))
+  (save-restriction
+    (narrow-to-region beg end)
+    (let ((stripspace-ignore-restrictions nil)
+          stripspace--clean)
+      (stripspace-cleanup-buffer))))
 
 ;;; Internal functions
 
