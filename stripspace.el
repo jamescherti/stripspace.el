@@ -98,14 +98,6 @@ This function is invoked only when the variable
           function)
   :group 'stripspace)
 
-(defcustom stripspace-ignore-restrictions t
-  "If non-nil, ignore restrictions such as `narrow-to-region'.
-When enabled, whitespace removal applies to the whole buffer, even if a region
-is narrowed.
-If unsure, keep this set to t."
-  :type 'boolean
-  :group 'stripspace)
-
 (defcustom stripspace-global-mode-exclude-modes
   '(view-mode special-mode minibuffer-mode comint-mode term-mode eshell-mode
               diff-mode org-agenda-mode message-mode markdown-mode)
@@ -174,14 +166,6 @@ This variable is used to track the state of trailing whitespace in the buffer.")
        (stripspace--message
         (concat ,(car args)) ,@(cdr args)))))
 
-(defmacro stripspace--ignore-narrowing-maybe (&rest body)
-  "Macro to ignore narrowing within the specified BODY of code."
-  `(save-excursion
-     (save-restriction
-       (when stripspace-ignore-restrictions
-         (widen))
-       ,@body)))
-
 (defun stripspace--mode-cleanup-maybe ()
   "Delete trailing whitespace, maybe."
   (when (and (not buffer-read-only)
@@ -234,61 +218,61 @@ back to its original column while ensuring the buffer remains unmodified."
        (t
         (format "Ignored (Reason: The buffer is not clean)"))))))
 
-(defun stripspace--optimized-delete-trailing-whitespace-clean-p (beg end)
-  "Return non-nil if no trailing whitespace is present.
-This optimized version is faster as it performs a single regex search.
-It is used when `delete-trailing-whitespace' is called.
-The BEG and END arguments respresent the beginning and end of the region."
-  (save-match-data
-    (save-excursion
-      (cond
-       ((and (goto-char beg)
-             (re-search-forward "[ \t]+$" end t))
-        nil)
-
-       ((and delete-trailing-lines
-             (goto-char end)
-             (<= (skip-chars-backward "\n") -2))
-        nil)
-
-       (t
-        t)))))
-
 ;;; Functions
 
 (defun stripspace-clean-p (&optional beg end)
   "Return non-nil if the whitespace has already been deleted.
-The BEG and END arguments respresent the beginning and end of the region."
-  (unless beg (setq beg (point-min)))
-  (unless end (setq end (point-max)))
-  (condition-case err
-      (let ((inhibit-interaction t))
-        (ignore inhibit-interaction)
-        (cond
-         ;; Optimized function
-         ((or (not stripspace-cleanup-buffer-function)
-              (eq stripspace-cleanup-buffer-function
-                  'delete-trailing-whitespace))
-          (stripspace--optimized-delete-trailing-whitespace-clean-p beg end))
+The BEG and END arguments represent the beginning and end of the region."
+  (save-excursion
+    (unless beg
+      (setq beg (point-min)))
 
-         (stripspace-clean-buffer-p-function
-          (funcall stripspace-clean-buffer-p-function beg end))
+    (unless end
+      (setq end (point-max)))
 
-         (t
-          (let ((contents (buffer-substring-no-properties (point-min)
-                                                          (point-max))))
-            (with-temp-buffer
-              (insert contents)
-              (set-buffer-modified-p nil)
-              (let (stripspace--clean)
-                (stripspace-cleanup-buffer))
-              (not (buffer-modified-p)))))))
-    (inhibited-interaction
-     (stripspace--verbose-message
-       (concat "Cleanliness check aborted (`stripspace-clean-p'): user "
-               "interaction was requested but inhibited (%s)")
-       (error-message-string err))
-     nil)))
+    (condition-case err
+        (let ((inhibit-interaction t))
+          (ignore inhibit-interaction)
+          (cond
+           (stripspace-clean-buffer-p-function
+            (funcall stripspace-clean-buffer-p-function beg end))
+
+           (t
+            (let* ((contents (buffer-substring-no-properties beg end))
+                   (orig-indent-tabs-mode indent-tabs-mode)
+                   (orig-tab-width tab-width)
+                   (orig-cleanup-func stripspace-cleanup-buffer-function)
+                   (orig-norm-indent stripspace-normalize-indentation)
+                   (orig-norm-indent-func stripspace-normalize-indentation-function)
+                   (orig-delete-trailing-lines (bound-and-true-p delete-trailing-lines))
+                   (orig-syntax-table (syntax-table))
+                   (orig-whitespace-style (bound-and-true-p whitespace-style))
+                   (orig-whitespace-action (bound-and-true-p whitespace-action)))
+              (with-temp-buffer
+                ;; Apply the captured variables to the temporary buffer
+                (setq-local indent-tabs-mode orig-indent-tabs-mode)
+                (setq-local tab-width orig-tab-width)
+                (setq-local stripspace-cleanup-buffer-function orig-cleanup-func)
+                (setq-local stripspace-normalize-indentation orig-norm-indent)
+                (setq-local stripspace-normalize-indentation-function orig-norm-indent-func)
+                (setq-local delete-trailing-lines orig-delete-trailing-lines)
+                (set-syntax-table orig-syntax-table)
+                (when orig-whitespace-style
+                  (setq-local whitespace-style orig-whitespace-style))
+                (when orig-whitespace-action
+                  (setq-local whitespace-action orig-whitespace-action))
+
+                (insert contents)
+                (set-buffer-modified-p nil)
+                (let (stripspace--clean)
+                  (stripspace-cleanup-buffer))
+                (not (buffer-modified-p)))))))
+      (inhibited-interaction
+       (stripspace--verbose-message
+         (concat "Cleanliness check aborted (`stripspace-clean-p'): user "
+                 "interaction was requested but inhibited (%s)")
+         (error-message-string err))
+       nil))))
 
 ;;; Autoloaded functions
 
@@ -315,17 +299,25 @@ current tab width settings."
                  (progn (skip-chars-forward " \t") (point)))
         (forward-line 1)))))
 
+(defun stripspace--cleanup-and-normalize-buffer ()
+  "Delete trailing whitespace in the current buffer."
+  (when buffer-read-only
+    (user-error "[stripspace] Buffer is read-only"))
+  (save-excursion
+    (funcall stripspace-cleanup-buffer-function)
+    (when stripspace-normalize-indentation
+      (funcall stripspace-normalize-indentation-function))))
+
 ;;;###autoload
 (defun stripspace-cleanup-buffer ()
   "Delete trailing whitespace in the current buffer."
   (interactive)
-  (when buffer-read-only
-    (user-error "[stripspace] Buffer is read-only"))
-  (stripspace--ignore-narrowing-maybe
-   (funcall stripspace-cleanup-buffer-function)
-   (when stripspace-normalize-indentation
-     (funcall stripspace-normalize-indentation-function))
-   (setq stripspace--clean t)))
+  (stripspace--cleanup-and-normalize-buffer)
+  (setq stripspace--clean (if (buffer-narrowed-p)
+                              (save-restriction
+                                (widen)
+                                (stripspace-clean-p))
+                            t)))
 
 ;;;###autoload
 (defalias 'stripspace-cleanup #'stripspace-cleanup-buffer)
@@ -335,13 +327,10 @@ current tab width settings."
 (defun stripspace-cleanup-region (beg end)
   "Delete trailing whitespace in the region between BEG and END."
   (interactive "r")
-  (when buffer-read-only
-    (user-error "[stripspace] Buffer is read-only"))
   (save-restriction
     (narrow-to-region beg end)
-    (let ((stripspace-ignore-restrictions nil)
-          stripspace--clean)
-      (stripspace-cleanup-buffer))))
+    (let (stripspace--clean)
+      (stripspace--cleanup-and-normalize-buffer))))
 
 ;;; Internal functions
 
@@ -379,8 +368,7 @@ current tab width settings."
                 (stripspace--verbose-message
                   "Checking if the buffer is clean: %s (major-mode: %s)"
                   (buffer-name) major-mode)
-                (stripspace--ignore-narrowing-maybe
-                 (setq stripspace--clean (stripspace-clean-p))))
+                (setq stripspace--clean (stripspace-clean-p)))
 
               (stripspace--verbose-message
                 "MODE ENABLED. This buffer is%s clean: %s (major-mode: %s)"
