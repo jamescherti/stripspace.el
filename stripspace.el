@@ -220,6 +220,9 @@ back to its original column while ensuring the buffer remains unmodified."
 
 ;;; Functions
 
+(defvar whitespace-style)
+(defvar whitespace-action)
+
 (defun stripspace-clean-p (&optional beg end)
   "Return non-nil if the whitespace has already been deleted.
 The BEG and END arguments represent the beginning and end of the region."
