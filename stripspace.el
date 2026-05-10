@@ -178,7 +178,12 @@ This variable is used to track the state of trailing whitespace in the buffer.")
 This function is triggered by `before-save-hook'. It stores the current column
 in a buffer-local variable and deletes any trailing whitespace."
   (when (bound-and-true-p stripspace-local-mode)
-    (setq stripspace--column (current-column))
+    ;; Save column for the base buffer and all its indirect buffers
+    (let ((base-buffer (or (buffer-base-buffer) (current-buffer))))
+      (dolist (buf (buffer-list))
+        (when (eq (or (buffer-base-buffer buf) buf) base-buffer)
+          (with-current-buffer buf
+            (setq stripspace--column (current-column))))))
     (condition-case err
         (let ((inhibit-interaction t))
           (ignore inhibit-interaction)
@@ -193,18 +198,21 @@ in a buffer-local variable and deletes any trailing whitespace."
 This function is triggered by `after-save-hook'. It attempts to move the cursor
 back to its original column while ensuring the buffer remains unmodified."
   (when (bound-and-true-p stripspace-local-mode)
-    ;; Restore column
+    ;; Restore column for the base buffer and all its indirect buffers
     (when stripspace-restore-column
-      (unwind-protect
-          (progn
-            (when stripspace--column
-              ;; Restore the column position, adding spaces if necessary
-              (move-to-column stripspace--column t)
-
-              ;; Prevent marking the buffer as modified after restoring the
-              ;; column
-              (set-buffer-modified-p nil)))
-        (setq stripspace--column nil)))
+      (let ((base-buffer (or (buffer-base-buffer) (current-buffer))))
+        (dolist (buf (buffer-list))
+          (when (eq (or (buffer-base-buffer buf) buf) base-buffer)
+            (with-current-buffer buf
+              (unwind-protect
+                  (progn
+                    (when stripspace--column
+                      ;; Restore the column position, adding spaces if necessary
+                      (move-to-column stripspace--column t)
+                      ;; Prevent marking the buffer as modified after restoring the
+                      ;; column
+                      (set-buffer-modified-p nil)))
+                (setq stripspace--column nil)))))))
 
     ;; Display a message
     (stripspace--verbose-message
