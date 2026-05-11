@@ -196,7 +196,7 @@ in a buffer-local variable and deletes any trailing whitespace."
 (defun stripspace--mode-after-save-hook ()
   "Restore the cursor to the previously saved column after saving.
 This function is triggered by `after-save-hook'. It attempts to move the cursor
-back to its original column while ensuring the buffer remains unmodified."
+back to its original column."
   (when (bound-and-true-p stripspace-local-mode)
     ;; Restore column for the base buffer and all its indirect buffers
     (when stripspace-restore-column
@@ -205,13 +205,16 @@ back to its original column while ensuring the buffer remains unmodified."
           (when (eq (or (buffer-base-buffer buf) buf) base-buffer)
             (with-current-buffer buf
               (unwind-protect
-                  (progn
-                    (when stripspace--column
-                      ;; Restore the column position, adding spaces if necessary
-                      (move-to-column stripspace--column t)
-                      ;; Prevent marking the buffer as modified after restoring the
-                      ;; column
-                      (set-buffer-modified-p nil)))
+                  (when (and stripspace--column
+                             ;; Edge Case Fix: Ensure buffer hasn't transitioned
+                             ;; to read-only during the save process.
+                             (not buffer-read-only))
+                    ;; We MUST allow modification hooks to run here. Using
+                    ;; `inhibit-modification-hooks` to hide this space insertion
+                    ;; will catastrophically desync LSP servers (like Eglot),
+                    ;; causing out-of-bounds crashes on the next keystroke.
+                    (move-to-column stripspace--column t)
+                    (set-buffer-modified-p nil))
                 (setq stripspace--column nil)))))))
 
     ;; Display a message
