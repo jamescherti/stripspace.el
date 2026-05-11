@@ -314,10 +314,19 @@ current tab width settings."
   "Delete trailing whitespace in the current buffer."
   (when buffer-read-only
     (user-error "[stripspace] Buffer is read-only"))
-  (save-excursion
-    (funcall stripspace-cleanup-buffer-function)
-    (when stripspace-normalize-indentation
-      (funcall stripspace-normalize-indentation-function))))
+  ;; Fix for `track-changes' assertion failures in Emacs 30+: Execute
+  ;; modifications in the context of the base buffer while respecting the
+  ;; accessible bounds of the current (indirect) buffer.
+  (let ((base-buffer (or (buffer-base-buffer) (current-buffer)))
+        (region-min (point-min))
+        (region-max (point-max)))
+    (with-current-buffer base-buffer
+      (save-excursion
+        (save-restriction
+          (narrow-to-region region-min region-max)
+          (funcall stripspace-cleanup-buffer-function)
+          (when stripspace-normalize-indentation
+            (funcall stripspace-normalize-indentation-function)))))))
 
 ;;;###autoload
 (defun stripspace-cleanup-buffer ()
