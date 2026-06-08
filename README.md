@@ -20,30 +20,6 @@ The *stripspace* Emacs package additionally provides the following features:
 
 (By default, `stripspace-global-mode` enables stripspace in all modes except those listed in the `stripspace-global-mode-exclude-modes` variable. By default, the excluded modes are: *view-mode*, *special-mode*, *minibuffer-mode*, *comint-mode*, *term-mode*, *eshell-mode*, *diff-mode*, *org-agenda-mode*, *message-mode*, and *markdown-mode*. **Markdown-mode is excluded by default because** trailing spaces are often used intentionally for line breaks in Markdown.)
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
-## Table of Contents
-
-- [stripspace.el - Ensure Emacs automatically removes trailing whitespace before saving buffers (optionally preserving the cursor column, normalizing indentation, and restricting whitespace cleanup to clean buffers)](#stripspaceel---ensure-emacs-automatically-removes-trailing-whitespace-before-saving-buffers-optionally-preserving-the-cursor-column-normalizing-indentation-and-restricting-whitespace-cleanup-to-clean-buffers)
-  - [Introduction](#introduction)
-  - [Features](#features)
-  - [Installation](#installation)
-  - [Frequently asked question](#frequently-asked-question)
-    - [How to prevent stripspace from deleting trailing lines?](#how-to-prevent-stripspace-from-deleting-trailing-lines)
-    - [What is the purpose of checking if the buffer's trailing whitespace is clean? (Disabled by Default)](#what-is-the-purpose-of-checking-if-the-buffers-trailing-whitespace-is-clean-disabled-by-default)
-    - [Normalize Indentation: Convert Tabs to Spaces or Spaces to Tabs (Disabled by Default)](#normalize-indentation-convert-tabs-to-spaces-or-spaces-to-tabs-disabled-by-default)
-    - [How to mark a buffer's trailing whitespace as clean if it is unclean?](#how-to-mark-a-buffers-trailing-whitespace-as-clean-if-it-is-unclean)
-    - [Why delete trailing whitespace? Can't tools like Git or diff ignore it?](#why-delete-trailing-whitespace-cant-tools-like-git-or-diff-ignore-it)
-    - [How to remove markdown-mode from the excluded modes in stripspace-global-mode?](#how-to-remove-markdown-mode-from-the-excluded-modes-in-stripspace-global-mode)
-    - [Why use stripspace over the built-in delete-trailing-whitespace?](#why-use-stripspace-over-the-built-in-delete-trailing-whitespace)
-    - [What are the differences between stripspace and ws-butler?](#what-are-the-differences-between-stripspace-and-ws-butler)
-    - [What are the differences between stripspace and whitespace-cleanup-mode?](#what-are-the-differences-between-stripspace-and-whitespace-cleanup-mode)
-    - [What are the differences between stripspace and trimspace?](#what-are-the-differences-between-stripspace-and-trimspace)
-  - [Author and License](#author-and-license)
-  - [Links](#links)
-
-<!-- markdown-toc end -->
-
-
 ## Features
 
 Here are the features of `(stripspace-local-mode)`:
