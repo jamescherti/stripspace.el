@@ -1,5 +1,5 @@
 # stripspace.el - Ensure Emacs automatically removes trailing whitespace before saving buffers (optionally preserving the cursor column, normalizing indentation, and restricting whitespace cleanup to clean buffers)
-![Build Status](https://github.com/jamescherti/stripspace.el/actions/workflows/ci.yml/badge.svg)
+![Build Status](https://github.com/jamescherti/stripspace.el/actions/workflows/melpazoid.yml/badge.svg)
 [![MELPA](https://melpa.org/packages/stripspace-badge.svg)](https://melpa.org/#/stripspace)
 [![MELPA Stable](https://stable.melpa.org/packages/stripspace-badge.svg)](https://stable.melpa.org/#/stripspace)
 ![License](https://img.shields.io/github/license/jamescherti/stripspace.el)
