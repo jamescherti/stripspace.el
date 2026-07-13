@@ -213,7 +213,8 @@ back to its original column."
                     ;; `inhibit-modification-hooks` to hide this space insertion
                     ;; will catastrophically desync LSP servers (like Eglot),
                     ;; causing out-of-bounds crashes on the next keystroke.
-                    (move-to-column stripspace--column t)
+                    (when (/= (current-column) stripspace--column)
+                      (move-to-column stripspace--column t))
                     (set-buffer-modified-p nil))
                 (setq stripspace--column nil)))))))
 
