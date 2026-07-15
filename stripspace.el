@@ -199,13 +199,18 @@ This variable is used to track the state of trailing whitespace in the buffer.")
                               '(next-line previous-line forward-char backward-char
                                           right-char left-char end-of-line beginning-of-line
                                           ignore keyboard-quit mwheel-scroll))))
-          (stripspace--clear-virtual-state)
-          (goto-char pos)
-          (insert spaces)
-          (if (= current-pos pos)
-              (when cursor-offset
-                (goto-char (+ pos cursor-offset)))
-            (goto-char current-pos)))))))
+          ;; This is manipulating overlays and insert text immediately before an
+          ;; interactive command runs. If the user's executed command is
+          ;; expensive or forces an internal display update before finishing,
+          ;; the user could see a flash of misaligned text or jumping point.
+          (let ((inhibit-redisplay t))
+            (stripspace--clear-virtual-state)
+            (goto-char pos)
+            (insert spaces)
+            (if (= current-pos pos)
+                (when cursor-offset
+                  (goto-char (+ pos cursor-offset)))
+              (goto-char current-pos))))))))
 
 (defun stripspace--post-command ()
   "Discard virtual spaces if point moves away from the line."
@@ -258,17 +263,23 @@ back to its original column."
                              ;; Edge Case Fix: Ensure buffer hasn't transitioned
                              ;; to read-only during the save process.
                              (not buffer-read-only))
-                    ;; We MUST allow modification hooks to run here. Using
-                    ;; `inhibit-modification-hooks` to hide this space insertion
-                    ;; will catastrophically desync LSP servers (like Eglot),
-                    ;; causing out-of-bounds crashes on the next keystroke.
-                    (if stripspace-use-virtual-overlay
-                        (when (and (/= (current-column) stripspace--column)
-                                   (not (buffer-local-value 'stripspace--virtual-overlay base-buffer)))
-                          (move-to-column stripspace--column t))
-                      (when (/= (current-column) stripspace--column)
-                        (move-to-column stripspace--column t)))
-                    (set-buffer-modified-p nil))
+                    ;; If a third-party package hooked into
+                    ;; `after-change-functions' executes an explicit (redisplay)
+                    ;; or (sit-for), it will force Emacs to render the buffer
+                    ;; mid-save, causing the cursor to jump visually.
+                    (let ((inhibit-redisplay t))
+                      ;; We MUST allow modification hooks to run here. Using
+                      ;; `inhibit-modification-hooks' to hide this space
+                      ;; insertion will catastrophically desync LSP servers,
+                      ;; causing out-of-bounds crashes on the next
+                      ;; keystroke.
+                      (if stripspace-use-virtual-overlay
+                          (when (and (/= (current-column) stripspace--column)
+                                     (not (buffer-local-value 'stripspace--virtual-overlay base-buffer)))
+                            (move-to-column stripspace--column t))
+                        (when (/= (current-column) stripspace--column)
+                          (move-to-column stripspace--column t)))
+                      (set-buffer-modified-p nil)))
                 (setq stripspace--column nil)))))))
 
     ;; Display a message
@@ -316,24 +327,30 @@ The BEG and END arguments represent the beginning and end of the region."
                    (orig-whitespace-style (bound-and-true-p whitespace-style))
                    (orig-whitespace-action (bound-and-true-p whitespace-action)))
               (with-temp-buffer
-                ;; Apply the captured variables to the temporary buffer
-                (setq-local indent-tabs-mode orig-indent-tabs-mode)
-                (setq-local tab-width orig-tab-width)
-                (setq-local stripspace-cleanup-buffer-function orig-cleanup-func)
-                (setq-local stripspace-normalize-indentation orig-norm-indent)
-                (setq-local stripspace-normalize-indentation-function orig-norm-indent-func)
-                (setq-local delete-trailing-lines orig-delete-trailing-lines)
-                (set-syntax-table orig-syntax-table)
-                (when orig-whitespace-style
-                  (setq-local whitespace-style orig-whitespace-style))
-                (when orig-whitespace-action
-                  (setq-local whitespace-action orig-whitespace-action))
+                ;; While temp buffers are not physically displayed in windows,
+                ;; internal functions like `whitespace-cleanup' might trigger
+                ;; font-lock updates, dimension checks, or syntax highlighting
+                ;; routines. Binding `inhibit-redisplay' ensures no CPU cycles
+                ;; are wasted on rendering checks.
+                (let ((inhibit-redisplay t))
+                  ;; Apply the captured variables to the temporary buffer
+                  (setq-local indent-tabs-mode orig-indent-tabs-mode)
+                  (setq-local tab-width orig-tab-width)
+                  (setq-local stripspace-cleanup-buffer-function orig-cleanup-func)
+                  (setq-local stripspace-normalize-indentation orig-norm-indent)
+                  (setq-local stripspace-normalize-indentation-function orig-norm-indent-func)
+                  (setq-local delete-trailing-lines orig-delete-trailing-lines)
+                  (set-syntax-table orig-syntax-table)
+                  (when orig-whitespace-style
+                    (setq-local whitespace-style orig-whitespace-style))
+                  (when orig-whitespace-action
+                    (setq-local whitespace-action orig-whitespace-action))
 
-                (insert contents)
-                (set-buffer-modified-p nil)
-                (let (stripspace--clean)
-                  (stripspace-cleanup-buffer))
-                (not (buffer-modified-p)))))))
+                  (insert contents)
+                  (set-buffer-modified-p nil)
+                  (let (stripspace--clean)
+                    (stripspace-cleanup-buffer))
+                  (not (buffer-modified-p))))))))
       (inhibited-interaction
        (stripspace--verbose-message
          (concat "Cleanliness check aborted (`stripspace-clean-p'): user "
@@ -396,10 +413,13 @@ current tab width settings."
 
         (save-excursion
           (save-restriction
-            (narrow-to-region region-min region-max)
-            (funcall stripspace-cleanup-buffer-function)
-            (when stripspace-normalize-indentation
-              (funcall stripspace-normalize-indentation-function))))
+            ;; If a modification hook triggers an early redisplay here, the user
+            ;; might see the narrowed state of the buffer for a split second.
+            (let ((inhibit-redisplay t))
+              (narrow-to-region region-min region-max)
+              (funcall stripspace-cleanup-buffer-function)
+              (when stripspace-normalize-indentation
+                (funcall stripspace-normalize-indentation-function)))))
 
         ;; Apply virtual whitespace overlay only if enabled
         (when (and stripspace-use-virtual-overlay
