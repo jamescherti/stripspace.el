@@ -143,6 +143,13 @@ For example, the Apheleia package, which reformats buffers, runs during
 `after-save-hook'. Running stripspace after it ensures that the column is
 restored after reformatting has been completed.")
 
+(defcustom stripspace-use-virtual-overlay nil
+  "EXPERIMENTAL.
+When non-nil, use an overlay to display virtual trailing whitespace.
+When nil, restore the cursor column by physically inserting spaces."
+  :type 'boolean
+  :group 'stripspace)
+
 ;;; Internal variables
 
 (defvar-local stripspace--clean :undefined
@@ -151,6 +158,11 @@ This variable is used to track the state of trailing whitespace in the buffer.")
 
 (defvar-local stripspace--column nil
   "Internal variable used to store the column position before saving.")
+
+(defvar-local stripspace--virtual-overlay nil
+  "Overlay used to display virtual trailing whitespace.")
+
+(defvar inhibit-interaction)
 
 ;;; Internal functions
 
@@ -165,6 +177,44 @@ This variable is used to track the state of trailing whitespace in the buffer.")
      (when stripspace-verbose
        (stripspace--message
         (concat ,(car args)) ,@(cdr args)))))
+
+(defun stripspace--clear-virtual-state ()
+  "Clean up virtual overlay and hooks."
+  (when stripspace--virtual-overlay
+    (delete-overlay stripspace--virtual-overlay)
+    (setq stripspace--virtual-overlay nil))
+  (remove-hook 'pre-command-hook #'stripspace--pre-command t)
+  (remove-hook 'post-command-hook #'stripspace--post-command t))
+
+(defun stripspace--pre-command ()
+  "Materialize virtual spaces before modifying commands."
+  (let ((ov stripspace--virtual-overlay))
+    (when ov
+      (let ((pos (overlay-start ov))
+            (spaces (overlay-get ov 'stripspace-spaces))
+            (cursor-offset (overlay-get ov 'stripspace-cursor-offset))
+            (current-pos (point)))
+        (when (and pos spaces
+                   (not (memq this-command
+                              '(next-line previous-line forward-char backward-char
+                                          right-char left-char end-of-line beginning-of-line
+                                          ignore keyboard-quit mwheel-scroll))))
+          (stripspace--clear-virtual-state)
+          (goto-char pos)
+          (insert spaces)
+          (if (= current-pos pos)
+              (when cursor-offset
+                (goto-char (+ pos cursor-offset)))
+            (goto-char current-pos)))))))
+
+(defun stripspace--post-command ()
+  "Discard virtual spaces if point moves away from the line."
+  (let ((ov stripspace--virtual-overlay))
+    (when ov
+      (let ((ov-pos (overlay-start ov)))
+        (when (or (null ov-pos)
+                  (/= (line-number-at-pos) (line-number-at-pos ov-pos)))
+          (stripspace--clear-virtual-state))))))
 
 (defun stripspace--mode-cleanup-maybe ()
   "Delete trailing whitespace, maybe."
@@ -186,7 +236,6 @@ in a buffer-local variable and deletes any trailing whitespace."
             (setq stripspace--column (current-column))))))
     (condition-case err
         (let ((inhibit-interaction t))
-          (ignore inhibit-interaction)
           (stripspace--mode-cleanup-maybe))
       (inhibited-interaction
        (stripspace--verbose-message
@@ -213,8 +262,12 @@ back to its original column."
                     ;; `inhibit-modification-hooks` to hide this space insertion
                     ;; will catastrophically desync LSP servers (like Eglot),
                     ;; causing out-of-bounds crashes on the next keystroke.
-                    (when (/= (current-column) stripspace--column)
-                      (move-to-column stripspace--column t))
+                    (if stripspace-use-virtual-overlay
+                        (when (and (/= (current-column) stripspace--column)
+                                   (not (buffer-local-value 'stripspace--virtual-overlay base-buffer)))
+                          (move-to-column stripspace--column t))
+                      (when (/= (current-column) stripspace--column)
+                        (move-to-column stripspace--column t)))
                     (set-buffer-modified-p nil))
                 (setq stripspace--column nil)))))))
 
@@ -247,7 +300,6 @@ The BEG and END arguments represent the beginning and end of the region."
 
     (condition-case err
         (let ((inhibit-interaction t))
-          (ignore inhibit-interaction)
           (cond
            (stripspace-clean-buffer-p-function
             (funcall stripspace-clean-buffer-p-function beg end))
@@ -325,12 +377,46 @@ current tab width settings."
         (region-min (point-min))
         (region-max (point-max)))
     (with-current-buffer base-buffer
-      (save-excursion
-        (save-restriction
-          (narrow-to-region region-min region-max)
-          (funcall stripspace-cleanup-buffer-function)
-          (when stripspace-normalize-indentation
-            (funcall stripspace-normalize-indentation-function)))))))
+      ;; Capture trailing spaces on the current line if point is within them
+      (let* ((orig-point (point))
+             (bol (line-beginning-position))
+             (eol (line-end-position))
+             (spaces-start (save-excursion
+                             (goto-char eol)
+                             (skip-chars-backward " \t" bol)
+                             (point)))
+             (virtual-spaces nil)
+             (cursor-offset 0))
+
+        (when (and stripspace-use-virtual-overlay
+                   (< spaces-start eol)
+                   (>= orig-point spaces-start))
+          (setq virtual-spaces (buffer-substring-no-properties spaces-start eol))
+          (setq cursor-offset (- orig-point spaces-start)))
+
+        (save-excursion
+          (save-restriction
+            (narrow-to-region region-min region-max)
+            (funcall stripspace-cleanup-buffer-function)
+            (when stripspace-normalize-indentation
+              (funcall stripspace-normalize-indentation-function))))
+
+        ;; Apply virtual whitespace overlay only if enabled
+        (when (and stripspace-use-virtual-overlay
+                   virtual-spaces
+                   (< (line-end-position) eol))
+          (stripspace--clear-virtual-state)
+          (let* ((new-eol (line-end-position))
+                 (ov (make-overlay new-eol new-eol nil nil nil)))
+            (setq cursor-offset (max 0 (min cursor-offset (length virtual-spaces))))
+            (when (< cursor-offset (length virtual-spaces))
+              (put-text-property cursor-offset (1+ cursor-offset) 'cursor t virtual-spaces))
+            (overlay-put ov 'after-string virtual-spaces)
+            (overlay-put ov 'stripspace-spaces virtual-spaces)
+            (overlay-put ov 'stripspace-cursor-offset cursor-offset)
+            (setq stripspace--virtual-overlay ov)
+            (add-hook 'pre-command-hook #'stripspace--pre-command nil t)
+            (add-hook 'post-command-hook #'stripspace--post-command nil t)))))))
 
 ;;;###autoload
 (defun stripspace-cleanup-buffer ()
