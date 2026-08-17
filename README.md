@@ -14,6 +14,7 @@ The **stripspace** Emacs package provides `stripspace-local-mode` and `stripspac
 If this enhances your workflow, please show your support by **⭐ starring stripspace.el on GitHub** to help more Emacs users discover its benefits.
 
 The *stripspace* Emacs package additionally provides the following features:
+
 - **Restores the cursor column on the current line**, including spaces before the cursor. *This ensures a consistent editing experience and prevents unintended cursor movement when saving a buffer after removing trailing whitespace.*
 - **Normalizes indentation** by converting leading tabs to spaces or leading spaces to tabs, without modifying tabs or spaces within the text. (*Disabled by default.*)
 - **Restricts trailing whitespace deletion to buffers that were initially clean**. When enabled, trailing whitespace is removed only if the buffer was clean before saving. (*Disabled by default.*)
@@ -23,6 +24,7 @@ The *stripspace* Emacs package additionally provides the following features:
 ## Features
 
 Here are the features of `(stripspace-local-mode)`:
+
 - Before saving buffer: Automatically removes all trailing whitespace.
 - After saving buffer: Restores the cursor's column position on the current line, including any spaces before the cursor. This ensures a consistent editing experience and prevents unintended cursor movement when saving a buffer and removing trailing whitespace. This behavior can be controller by the `stripspace-restore-column` variable (default: `t`).
 - Even if the buffer is narrowed, *stripspace* removes trailing whitespace from the entire buffer. This behavior, controlled by the `stripspace-ignore-restrictions` variable (default: `t`).
@@ -111,6 +113,7 @@ To manually mark a buffer as clean, call the `(stripspace-clean)` function, whic
 Tools like Git or diff can be configured to ignore trailing whitespace.
 
 However, consistently removing trailing whitespace is still useful:
+
 - It **prevents conflicts caused by unnecessary end-of-line spaces**, ensuring that merges and collaborative work remain smooth and predictable.
 - It **eliminates noise in version control systems**, allowing code reviews and diffs to focus solely on meaningful changes, which saves time and reduces cognitive load.
 - It **enforces intentionality in the code**, so every line and character serves a purpose, making the codebase easier to understand, maintain, and debug over time.
@@ -156,6 +159,7 @@ Optionally, when `stripspace-local-mode` is enabled, it can check if the buffer 
 The *stripspace* and *whitespace-cleanup-mode* packages are quite similar. The *stripspace* author wasn't aware of *whitespace-cleanup-mode* when he developed *stripspace*.
 
 Here are the key differences:
+
 - Customizations: *whitespace-cleanup-mode* uses the built-in `whitespace-cleanup` function (not all users prefer `whitespace-cleanup` because it deletes more than just trailing whitespace). There is no way to change this function in *whitespace-cleanup-mode*. On the other hand, the *stripspace* package defaults to the built-in `delete-trailing-whitespace` function, but users can assign a different function by setting `stripspace-clean-function`. For example, setting `stripspace-clean-function` to `whitespace-cleanup` makes *stripspace* behave like the *whitespace-cleanup-mode* package.
 - Performance: When `stripspace-clean-function` is set to `delete-trailing-whitespace` (default), *stripspace* function that detects whether the buffer is clean is faster than `whitespace-cleanup-mode`. (*stripspace* performs a single regex search for trailing whitespace and another for blank lines, while `whitespace-cleanup-mode` applies whitespace removal to the entire buffer. The performance of *whitespace-cleanup-mode* decreases as the buffer size increases.)
 
@@ -179,6 +183,7 @@ This program is free software: you can redistribute it and/or modify it under th
 - [stripspace.el @MELPA](https://melpa.org/#/stripspace)
 
 Other Emacs packages by the same author:
+
 - [minimal-emacs.d](https://github.com/jamescherti/minimal-emacs.d): This repository hosts a minimal Emacs configuration designed to serve as a foundation for your vanilla Emacs setup and provide a solid base for an enhanced Emacs experience.
 - [compile-angel.el](https://github.com/jamescherti/compile-angel.el): **Speed up Emacs!** This package guarantees that all .el files are both byte-compiled and native-compiled, which significantly speeds up Emacs.
 - [outline-indent.el](https://github.com/jamescherti/outline-indent.el): An Emacs package that provides a minor mode that enables code folding and outlining based on indentation levels for various indentation-based text files, such as YAML, Python, and other indented text files.
