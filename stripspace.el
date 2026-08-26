@@ -5,7 +5,7 @@
 ;; Author: James Cherti <https://www.jamescherti.com/contact/>
 ;; Version: 1.0.5
 ;; URL: https://github.com/jamescherti/stripspace.el
-;; Keywords: convenience
+;; Keywords: convenience, files
 ;; Package-Requires: ((emacs "24.3"))
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -32,7 +32,7 @@
 
 (defgroup stripspace nil
   "Ensures that Emacs removes trailing whitespace before saving a buffer."
-  :group 'stripspace
+  :group 'convenience
   :prefix "stripspace-"
   :link '(url-link
           :tag "Github"
