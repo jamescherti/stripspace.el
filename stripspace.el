@@ -162,8 +162,6 @@ This variable is used to track the state of trailing whitespace in the buffer.")
 (defvar-local stripspace--virtual-overlay nil
   "Overlay used to display virtual trailing whitespace.")
 
-(defvar inhibit-interaction)
-
 ;;; Internal functions
 
 (defun stripspace--message (&rest args)
@@ -239,13 +237,7 @@ in a buffer-local variable and deletes any trailing whitespace."
         (when (eq (or (buffer-base-buffer buf) buf) base-buffer)
           (with-current-buffer buf
             (setq stripspace--column (current-column))))))
-    (condition-case err
-        (let ((inhibit-interaction t))
-          (stripspace--mode-cleanup-maybe))
-      (inhibited-interaction
-       (stripspace--verbose-message
-         "Cleanup aborted: user interaction was requested but inhibited (%s)"
-         (error-message-string err))))))
+    (stripspace--mode-cleanup-maybe)))
 
 (defun stripspace--mode-after-save-hook ()
   "Restore the cursor to the previously saved column after saving.
@@ -309,54 +301,46 @@ The BEG and END arguments represent the beginning and end of the region."
     (unless end
       (setq end (point-max)))
 
-    (condition-case err
-        (let ((inhibit-interaction t))
-          (cond
-           (stripspace-clean-buffer-p-function
-            (funcall stripspace-clean-buffer-p-function beg end))
+    (cond
+     (stripspace-clean-buffer-p-function
+      (funcall stripspace-clean-buffer-p-function beg end))
 
-           (t
-            (let* ((contents (buffer-substring-no-properties beg end))
-                   (orig-indent-tabs-mode indent-tabs-mode)
-                   (orig-tab-width tab-width)
-                   (orig-cleanup-func stripspace-cleanup-buffer-function)
-                   (orig-norm-indent stripspace-normalize-indentation)
-                   (orig-norm-indent-func stripspace-normalize-indentation-function)
-                   (orig-delete-trailing-lines (bound-and-true-p delete-trailing-lines))
-                   (orig-syntax-table (syntax-table))
-                   (orig-whitespace-style (bound-and-true-p whitespace-style))
-                   (orig-whitespace-action (bound-and-true-p whitespace-action)))
-              (with-temp-buffer
-                ;; While temp buffers are not physically displayed in windows,
-                ;; internal functions like `whitespace-cleanup' might trigger
-                ;; font-lock updates, dimension checks, or syntax highlighting
-                ;; routines. Binding `inhibit-redisplay' ensures no CPU cycles
-                ;; are wasted on rendering checks.
-                (let ((inhibit-redisplay t))
-                  ;; Apply the captured variables to the temporary buffer
-                  (setq-local indent-tabs-mode orig-indent-tabs-mode)
-                  (setq-local tab-width orig-tab-width)
-                  (setq-local stripspace-cleanup-buffer-function orig-cleanup-func)
-                  (setq-local stripspace-normalize-indentation orig-norm-indent)
-                  (setq-local stripspace-normalize-indentation-function orig-norm-indent-func)
-                  (setq-local delete-trailing-lines orig-delete-trailing-lines)
-                  (set-syntax-table orig-syntax-table)
-                  (when orig-whitespace-style
-                    (setq-local whitespace-style orig-whitespace-style))
-                  (when orig-whitespace-action
-                    (setq-local whitespace-action orig-whitespace-action))
+     (t
+      (let* ((contents (buffer-substring-no-properties beg end))
+             (orig-indent-tabs-mode indent-tabs-mode)
+             (orig-tab-width tab-width)
+             (orig-cleanup-func stripspace-cleanup-buffer-function)
+             (orig-norm-indent stripspace-normalize-indentation)
+             (orig-norm-indent-func stripspace-normalize-indentation-function)
+             (orig-delete-trailing-lines (bound-and-true-p delete-trailing-lines))
+             (orig-syntax-table (syntax-table))
+             (orig-whitespace-style (bound-and-true-p whitespace-style))
+             (orig-whitespace-action (bound-and-true-p whitespace-action)))
+        (with-temp-buffer
+          ;; While temp buffers are not physically displayed in windows,
+          ;; internal functions like `whitespace-cleanup' might trigger
+          ;; font-lock updates, dimension checks, or syntax highlighting
+          ;; routines. Binding `inhibit-redisplay' ensures no CPU cycles
+          ;; are wasted on rendering checks.
+          (let ((inhibit-redisplay t))
+            ;; Apply the captured variables to the temporary buffer
+            (setq-local indent-tabs-mode orig-indent-tabs-mode)
+            (setq-local tab-width orig-tab-width)
+            (setq-local stripspace-cleanup-buffer-function orig-cleanup-func)
+            (setq-local stripspace-normalize-indentation orig-norm-indent)
+            (setq-local stripspace-normalize-indentation-function orig-norm-indent-func)
+            (setq-local delete-trailing-lines orig-delete-trailing-lines)
+            (set-syntax-table orig-syntax-table)
+            (when orig-whitespace-style
+              (setq-local whitespace-style orig-whitespace-style))
+            (when orig-whitespace-action
+              (setq-local whitespace-action orig-whitespace-action))
 
-                  (insert contents)
-                  (set-buffer-modified-p nil)
-                  (let (stripspace--clean)
-                    (stripspace-cleanup-buffer))
-                  (not (buffer-modified-p))))))))
-      (inhibited-interaction
-       (stripspace--verbose-message
-         (concat "Cleanliness check aborted (`stripspace-clean-p'): user "
-                 "interaction was requested but inhibited (%s)")
-         (error-message-string err))
-       nil))))
+            (insert contents)
+            (set-buffer-modified-p nil)
+            (let (stripspace--clean)
+              (stripspace-cleanup-buffer))
+            (not (buffer-modified-p)))))))))
 
 ;;; Autoloaded functions
 
