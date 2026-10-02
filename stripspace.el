@@ -383,6 +383,15 @@ current tab width settings."
                  (progn (skip-chars-forward " \t") (point)))
         (forward-line 1)))))
 
+(declare-function pos-bol nil)
+(declare-function pos-eol nil)
+
+(defalias 'stripspace--pos-bol
+  (if (fboundp 'pos-bol) #'pos-bol #'line-beginning-position))
+
+(defalias 'stripspace--pos-eol
+  (if (fboundp 'pos-eol) #'pos-eol #'line-end-position))
+
 (defun stripspace--cleanup-and-normalize-buffer ()
   "Delete trailing whitespace in the current buffer."
   (when buffer-read-only
@@ -396,8 +405,8 @@ current tab width settings."
     (with-current-buffer base-buffer
       ;; Capture trailing spaces on the current line if point is within them
       (let* ((orig-point (point))
-             (bol (line-beginning-position))
-             (eol (line-end-position))
+             (bol (stripspace--pos-bol))
+             (eol (stripspace--pos-eol))
              (spaces-start (save-excursion
                              (goto-char eol)
                              (skip-chars-backward " \t" bol)
@@ -424,9 +433,9 @@ current tab width settings."
         ;; Apply virtual whitespace overlay only if enabled
         (when (and stripspace-use-virtual-overlay
                    virtual-spaces
-                   (< (line-end-position) eol))
+                   (< (stripspace--pos-eol) eol))
           (stripspace--clear-virtual-state)
-          (let* ((new-eol (line-end-position))
+          (let* ((new-eol (stripspace--pos-eol))
                  (ov (make-overlay new-eol new-eol nil nil nil)))
             (setq cursor-offset (max 0 (min cursor-offset (length virtual-spaces))))
             (when (< cursor-offset (length virtual-spaces))
