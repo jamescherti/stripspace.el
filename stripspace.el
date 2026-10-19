@@ -234,58 +234,44 @@ This variable is used to track the state of trailing whitespace in the buffer.")
 This function is triggered by `before-save-hook'. It stores the current column
 in a buffer-local variable and deletes any trailing whitespace."
   (when (bound-and-true-p stripspace-local-mode)
-    ;; Save column for the base buffer and all its indirect buffers
-    (let ((base-buffer (or (buffer-base-buffer) (current-buffer))))
-      (dolist (buf (buffer-list))
-        (when (eq (or (buffer-base-buffer buf) buf) base-buffer)
-          (with-current-buffer buf
-            (setq stripspace--column (current-column)))))
-      (stripspace--mode-cleanup-maybe)
-      (with-current-buffer base-buffer
-        (setq stripspace--modified-tick (buffer-chars-modified-tick))))))
+    (setq stripspace--column (current-column))
+    (stripspace--mode-cleanup-maybe)
+    (setq stripspace--modified-tick (buffer-chars-modified-tick))))
 
 (defun stripspace--mode-after-save-hook ()
   "Restore the cursor to the previously saved column after saving.
 This function is triggered by `after-save-hook'. It attempts to move the cursor
 back to its original column."
   (when (bound-and-true-p stripspace-local-mode)
-    ;; Restore column for the base buffer and all its indirect buffers
     (when stripspace-restore-column
-      (let* ((base-buffer (or (buffer-base-buffer) (current-buffer)))
-             (buffer-unchanged
-              (and (not (buffer-modified-p base-buffer))
-                   (equal (buffer-local-value 'stripspace--modified-tick base-buffer)
-                          (buffer-chars-modified-tick base-buffer)))))
-        (unwind-protect
-            (dolist (buf (buffer-list))
-              (when (eq (or (buffer-base-buffer buf) buf) base-buffer)
-                (with-current-buffer buf
-                  (unwind-protect
-                      (when (and stripspace--column
-                                 buffer-unchanged
-                                 ;; Edge Case Fix: Ensure buffer hasn't transitioned
-                                 ;; to read-only during the save process.
-                                 (not buffer-read-only))
-                        ;; If a third-party package hooked into
-                        ;; `after-change-functions' executes an explicit (redisplay)
-                        ;; or (sit-for), it will force Emacs to render the buffer
-                        ;; mid-save, causing the cursor to jump visually.
-                        (let ((inhibit-redisplay t))
-                          ;; We MUST allow modification hooks to run here. Using
-                          ;; `inhibit-modification-hooks' to hide this space
-                          ;; insertion will catastrophically desync LSP servers,
-                          ;; causing out-of-bounds crashes on the next
-                          ;; keystroke.
-                          (if stripspace-use-virtual-overlay
-                              (when (and (/= (current-column) stripspace--column)
-                                         (not (buffer-local-value 'stripspace--virtual-overlay base-buffer)))
-                                (move-to-column stripspace--column t))
-                            (when (/= (current-column) stripspace--column)
-                              (move-to-column stripspace--column t)))
-                          (set-buffer-modified-p nil)))
-                    (setq stripspace--column nil)))))
-          (with-current-buffer base-buffer
-            (setq stripspace--modified-tick nil)))))
+      (unwind-protect
+          (let ((buffer-unchanged (and (not (buffer-modified-p))
+                                       (equal stripspace--modified-tick
+                                              (buffer-chars-modified-tick)))))
+            (if (not buffer-unchanged)
+                (when stripspace--virtual-overlay
+                  (stripspace--clear-virtual-state))
+              (when (and stripspace--column
+                         ;; Edge Case Fix: Ensure buffer hasn't transitioned
+                         ;; to read-only during the save process.
+                         (not buffer-read-only))
+                ;; If a third-party package hooked into
+                ;; `after-change-functions' executes an explicit (redisplay)
+                ;; or (sit-for), it will force Emacs to render the buffer
+                ;; mid-save, causing the cursor to jump visually.
+                (let ((inhibit-redisplay t))
+                  ;; We MUST allow modification hooks to run here. Using
+                  ;; `inhibit-modification-hooks' to hide this space
+                  ;; insertion will catastrophically desync LSP servers,
+                  ;; causing out-of-bounds crashes on the next
+                  ;; keystroke.
+                  (when (and (/= (current-column) stripspace--column)
+                             (not (and stripspace-use-virtual-overlay
+                                       stripspace--virtual-overlay)))
+                    (move-to-column stripspace--column t))
+                  (set-buffer-modified-p nil)))))
+        (setq stripspace--column nil
+              stripspace--modified-tick nil)))
 
     ;; Display a message
     (stripspace--verbose-message
@@ -396,53 +382,53 @@ current tab width settings."
   ;; Fix for `track-changes' assertion failures in Emacs 30+: Execute
   ;; modifications in the context of the base buffer while respecting the
   ;; accessible bounds of the current (indirect) buffer.
-  (let ((base-buffer (or (buffer-base-buffer) (current-buffer)))
-        (region-min (point-min))
-        (region-max (point-max)))
+  (let* ((base-buffer (or (buffer-base-buffer) (current-buffer)))
+         (region-min (point-min))
+         (region-max (point-max))
+         ;; Capture trailing spaces on the current line if point is within them
+         (orig-point (point))
+         (bol (stripspace--pos-bol))
+         (eol (stripspace--pos-eol))
+         (spaces-start (save-excursion
+                         (goto-char eol)
+                         (skip-chars-backward " \t" bol)
+                         (point)))
+         (virtual-spaces nil)
+         (cursor-offset 0))
+
+    (when (and stripspace-use-virtual-overlay
+               (< spaces-start eol)
+               (>= orig-point spaces-start))
+      (setq virtual-spaces (buffer-substring-no-properties spaces-start eol))
+      (setq cursor-offset (- orig-point spaces-start)))
+
     (with-current-buffer base-buffer
-      ;; Capture trailing spaces on the current line if point is within them
-      (let* ((orig-point (point))
-             (bol (stripspace--pos-bol))
-             (eol (stripspace--pos-eol))
-             (spaces-start (save-excursion
-                             (goto-char eol)
-                             (skip-chars-backward " \t" bol)
-                             (point)))
-             (virtual-spaces nil)
-             (cursor-offset 0))
+      (save-excursion
+        (save-restriction
+          ;; If a modification hook triggers an early redisplay here, the user
+          ;; might see the narrowed state of the buffer for a split second.
+          (let ((inhibit-redisplay t))
+            (narrow-to-region region-min region-max)
+            (funcall stripspace-cleanup-buffer-function)
+            (when stripspace-normalize-indentation
+              (funcall stripspace-normalize-indentation-function))))))
 
-        (when (and stripspace-use-virtual-overlay
-                   (< spaces-start eol)
-                   (>= orig-point spaces-start))
-          (setq virtual-spaces (buffer-substring-no-properties spaces-start eol))
-          (setq cursor-offset (- orig-point spaces-start)))
-
-        (save-excursion
-          (save-restriction
-            ;; If a modification hook triggers an early redisplay here, the user
-            ;; might see the narrowed state of the buffer for a split second.
-            (let ((inhibit-redisplay t))
-              (narrow-to-region region-min region-max)
-              (funcall stripspace-cleanup-buffer-function)
-              (when stripspace-normalize-indentation
-                (funcall stripspace-normalize-indentation-function)))))
-
-        ;; Apply virtual whitespace overlay only if enabled
-        (when (and stripspace-use-virtual-overlay
-                   virtual-spaces
-                   (< (stripspace--pos-eol) eol))
-          (stripspace--clear-virtual-state)
-          (let* ((new-eol (stripspace--pos-eol))
-                 (ov (make-overlay new-eol new-eol nil nil nil)))
-            (setq cursor-offset (max 0 (min cursor-offset (length virtual-spaces))))
-            (when (< cursor-offset (length virtual-spaces))
-              (put-text-property cursor-offset (1+ cursor-offset) 'cursor t virtual-spaces))
-            (overlay-put ov 'after-string virtual-spaces)
-            (overlay-put ov 'stripspace-spaces virtual-spaces)
-            (overlay-put ov 'stripspace-cursor-offset cursor-offset)
-            (setq stripspace--virtual-overlay ov)
-            (add-hook 'pre-command-hook #'stripspace--pre-command nil t)
-            (add-hook 'post-command-hook #'stripspace--post-command nil t)))))))
+    ;; Apply virtual whitespace overlay only if enabled
+    (when (and stripspace-use-virtual-overlay
+               virtual-spaces
+               (< (stripspace--pos-eol) eol))
+      (stripspace--clear-virtual-state)
+      (let* ((new-eol (stripspace--pos-eol))
+             (ov (make-overlay new-eol new-eol nil nil nil)))
+        (setq cursor-offset (max 0 (min cursor-offset (length virtual-spaces))))
+        (when (< cursor-offset (length virtual-spaces))
+          (put-text-property cursor-offset (1+ cursor-offset) 'cursor t virtual-spaces))
+        (overlay-put ov 'after-string virtual-spaces)
+        (overlay-put ov 'stripspace-spaces virtual-spaces)
+        (overlay-put ov 'stripspace-cursor-offset cursor-offset)
+        (setq stripspace--virtual-overlay ov)
+        (add-hook 'pre-command-hook #'stripspace--pre-command nil t)
+        (add-hook 'post-command-hook #'stripspace--post-command nil t)))))
 
 ;;;###autoload
 (defun stripspace-cleanup-buffer ()
