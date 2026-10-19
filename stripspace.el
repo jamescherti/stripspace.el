@@ -197,9 +197,24 @@ This variable is used to track the state of trailing whitespace in the buffer.")
             (current-pos (point)))
         (when (and pos spaces
                    (not (memq this-command
-                              '(next-line previous-line forward-char backward-char
-                                          right-char left-char end-of-line beginning-of-line
-                                          ignore keyboard-quit mwheel-scroll))))
+                              '(next-line
+                                previous-line
+                                forward-char
+                                backward-char
+                                right-char
+                                left-char
+                                end-of-line
+                                beginning-of-line
+                                ignore
+                                keyboard-quit
+                                mwheel-scroll
+                                pixel-scroll-precision
+                                isearch-forward
+                                isearch-backward
+                                evil-next-line
+                                evil-previous-line
+                                evil-forward-char
+                                evil-backward-char))))
           ;; This is manipulating overlays and insert text immediately before an
           ;; interactive command runs. If the user's executed command is
           ;; expensive or forces an internal display update before finishing,
@@ -338,8 +353,7 @@ The BEG and END arguments represent the beginning and end of the region."
 
             (insert contents)
             (set-buffer-modified-p nil)
-            (let (stripspace--clean)
-              (stripspace-cleanup-buffer))
+            (stripspace--cleanup-and-normalize-buffer)
             (not (buffer-modified-p)))))))))
 
 ;;; Autoloaded functions
@@ -370,11 +384,19 @@ current tab width settings."
 (declare-function pos-bol nil)
 (declare-function pos-eol nil)
 
-(defalias 'stripspace--pos-bol
-  (if (fboundp 'pos-bol) #'pos-bol #'line-beginning-position))
+(defsubst stripspace--pos-bol ()
+  "Return the position of the first character on the current line."
+  (if (fboundp 'pos-bol)
+      (pos-bol)
+    (let ((inhibit-field-text-motion t))
+      (line-beginning-position))))
 
-(defalias 'stripspace--pos-eol
-  (if (fboundp 'pos-eol) #'pos-eol #'line-end-position))
+(defsubst stripspace--pos-eol ()
+  "Return the position of the last character on the current line."
+  (if (fboundp 'pos-eol)
+      (pos-eol)
+    (let ((inhibit-field-text-motion t))
+      (line-end-position))))
 
 (defun stripspace--cleanup-and-normalize-buffer ()
   "Delete trailing whitespace in the current buffer."
@@ -506,6 +528,7 @@ current tab width settings."
         (add-hook 'after-save-hook #'stripspace--mode-after-save-hook
                   stripspace-after-save-hook-depth t))
     ;; Mode disabled
+    (stripspace--clear-virtual-state)
     (remove-hook 'before-save-hook #'stripspace--mode-before-save-hook t)
     (remove-hook 'after-save-hook #'stripspace--mode-after-save-hook t)))
 
