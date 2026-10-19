@@ -159,6 +159,9 @@ This variable is used to track the state of trailing whitespace in the buffer.")
 (defvar-local stripspace--column nil
   "Internal variable used to store the column position before saving.")
 
+(defvar-local stripspace--modified-tick nil
+  "Internal variable used to store the buffer modification tick after cleanup.")
+
 (defvar-local stripspace--virtual-overlay nil
   "Overlay used to display virtual trailing whitespace.")
 
@@ -236,8 +239,10 @@ in a buffer-local variable and deletes any trailing whitespace."
       (dolist (buf (buffer-list))
         (when (eq (or (buffer-base-buffer buf) buf) base-buffer)
           (with-current-buffer buf
-            (setq stripspace--column (current-column))))))
-    (stripspace--mode-cleanup-maybe)))
+            (setq stripspace--column (current-column)))))
+      (stripspace--mode-cleanup-maybe)
+      (with-current-buffer base-buffer
+        (setq stripspace--modified-tick (buffer-chars-modified-tick))))))
 
 (defun stripspace--mode-after-save-hook ()
   "Restore the cursor to the previously saved column after saving.
@@ -246,33 +251,41 @@ back to its original column."
   (when (bound-and-true-p stripspace-local-mode)
     ;; Restore column for the base buffer and all its indirect buffers
     (when stripspace-restore-column
-      (let ((base-buffer (or (buffer-base-buffer) (current-buffer))))
-        (dolist (buf (buffer-list))
-          (when (eq (or (buffer-base-buffer buf) buf) base-buffer)
-            (with-current-buffer buf
-              (unwind-protect
-                  (when (and stripspace--column
-                             ;; Edge Case Fix: Ensure buffer hasn't transitioned
-                             ;; to read-only during the save process.
-                             (not buffer-read-only))
-                    ;; If a third-party package hooked into
-                    ;; `after-change-functions' executes an explicit (redisplay)
-                    ;; or (sit-for), it will force Emacs to render the buffer
-                    ;; mid-save, causing the cursor to jump visually.
-                    (let ((inhibit-redisplay t))
-                      ;; We MUST allow modification hooks to run here. Using
-                      ;; `inhibit-modification-hooks' to hide this space
-                      ;; insertion will catastrophically desync LSP servers,
-                      ;; causing out-of-bounds crashes on the next
-                      ;; keystroke.
-                      (if stripspace-use-virtual-overlay
-                          (when (and (/= (current-column) stripspace--column)
-                                     (not (buffer-local-value 'stripspace--virtual-overlay base-buffer)))
-                            (move-to-column stripspace--column t))
-                        (when (/= (current-column) stripspace--column)
-                          (move-to-column stripspace--column t)))
-                      (set-buffer-modified-p nil)))
-                (setq stripspace--column nil)))))))
+      (let* ((base-buffer (or (buffer-base-buffer) (current-buffer)))
+             (buffer-unchanged
+              (and (not (buffer-modified-p base-buffer))
+                   (equal (buffer-local-value 'stripspace--modified-tick base-buffer)
+                          (buffer-chars-modified-tick base-buffer)))))
+        (unwind-protect
+            (dolist (buf (buffer-list))
+              (when (eq (or (buffer-base-buffer buf) buf) base-buffer)
+                (with-current-buffer buf
+                  (unwind-protect
+                      (when (and stripspace--column
+                                 buffer-unchanged
+                                 ;; Edge Case Fix: Ensure buffer hasn't transitioned
+                                 ;; to read-only during the save process.
+                                 (not buffer-read-only))
+                        ;; If a third-party package hooked into
+                        ;; `after-change-functions' executes an explicit (redisplay)
+                        ;; or (sit-for), it will force Emacs to render the buffer
+                        ;; mid-save, causing the cursor to jump visually.
+                        (let ((inhibit-redisplay t))
+                          ;; We MUST allow modification hooks to run here. Using
+                          ;; `inhibit-modification-hooks' to hide this space
+                          ;; insertion will catastrophically desync LSP servers,
+                          ;; causing out-of-bounds crashes on the next
+                          ;; keystroke.
+                          (if stripspace-use-virtual-overlay
+                              (when (and (/= (current-column) stripspace--column)
+                                         (not (buffer-local-value 'stripspace--virtual-overlay base-buffer)))
+                                (move-to-column stripspace--column t))
+                            (when (/= (current-column) stripspace--column)
+                              (move-to-column stripspace--column t)))
+                          (set-buffer-modified-p nil)))
+                    (setq stripspace--column nil)))))
+          (with-current-buffer base-buffer
+            (setq stripspace--modified-tick nil)))))
 
     ;; Display a message
     (stripspace--verbose-message
