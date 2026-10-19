@@ -251,9 +251,10 @@ back to its original column."
             (if (not buffer-unchanged)
                 (when stripspace--virtual-overlay
                   (stripspace--clear-virtual-state))
+              ;; Restore column
               (when (and stripspace--column
-                         ;; Edge Case Fix: Ensure buffer hasn't transitioned
-                         ;; to read-only during the save process.
+                         ;; Ensure buffer hasn't transitioned to read-only
+                         ;; during the save process.
                          (not buffer-read-only))
                 ;; If a third-party package hooked into
                 ;; `after-change-functions' executes an explicit (redisplay)
