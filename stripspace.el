@@ -228,13 +228,31 @@ This variable is used to track the state of trailing whitespace in the buffer.")
                   (goto-char (+ pos cursor-offset)))
               (goto-char current-pos))))))))
 
+(declare-function pos-bol nil)
+(declare-function pos-eol nil)
+
+(defsubst stripspace--pos-bol ()
+  "Return the position of the first character on the current line."
+  (if (fboundp 'pos-bol)
+      (pos-bol)
+    (let ((inhibit-field-text-motion t))
+      (line-beginning-position))))
+
+(defsubst stripspace--pos-eol ()
+  "Return the position of the last character on the current line."
+  (if (fboundp 'pos-eol)
+      (pos-eol)
+    (let ((inhibit-field-text-motion t))
+      (line-end-position))))
+
 (defun stripspace--post-command ()
   "Discard virtual spaces if point moves away from the line."
   (let ((ov stripspace--virtual-overlay))
     (when ov
       (let ((ov-pos (overlay-start ov)))
         (when (or (null ov-pos)
-                  (/= (line-number-at-pos) (line-number-at-pos ov-pos)))
+                  (< ov-pos (stripspace--pos-bol))
+                  (> ov-pos (stripspace--pos-eol)))
           (stripspace--clear-virtual-state))))))
 
 (defun stripspace--mode-cleanup-maybe ()
@@ -380,23 +398,6 @@ current tab width settings."
         (funcall normalize-indentation-fun (point)
                  (progn (skip-chars-forward " \t") (point)))
         (forward-line 1)))))
-
-(declare-function pos-bol nil)
-(declare-function pos-eol nil)
-
-(defsubst stripspace--pos-bol ()
-  "Return the position of the first character on the current line."
-  (if (fboundp 'pos-bol)
-      (pos-bol)
-    (let ((inhibit-field-text-motion t))
-      (line-beginning-position))))
-
-(defsubst stripspace--pos-eol ()
-  "Return the position of the last character on the current line."
-  (if (fboundp 'pos-eol)
-      (pos-eol)
-    (let ((inhibit-field-text-motion t))
-      (line-end-position))))
 
 (defun stripspace--cleanup-and-normalize-buffer ()
   "Delete trailing whitespace in the current buffer."
