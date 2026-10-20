@@ -228,9 +228,6 @@ This variable is used to track the state of trailing whitespace in the buffer.")
                   (goto-char (+ pos cursor-offset)))
               (goto-char current-pos))))))))
 
-(declare-function pos-bol nil)
-(declare-function pos-eol nil)
-
 (defsubst stripspace--pos-bol ()
   "Return the position of the first character on the current line."
   (if (fboundp 'pos-bol)
@@ -525,9 +522,17 @@ current tab width settings."
 
         ;; Mode enabled
         (add-hook 'before-save-hook #'stripspace--mode-before-save-hook
-                  stripspace-before-save-hook-depth t)
+                  (if (>= emacs-major-version 27)
+                      stripspace-before-save-hook-depth
+                    (and (numberp stripspace-before-save-hook-depth)
+                         (> stripspace-before-save-hook-depth 0)))
+                  t)
         (add-hook 'after-save-hook #'stripspace--mode-after-save-hook
-                  stripspace-after-save-hook-depth t))
+                  (if (>= emacs-major-version 27)
+                      stripspace-after-save-hook-depth
+                    (and (numberp stripspace-after-save-hook-depth)
+                         (> stripspace-after-save-hook-depth 0)))
+                  t))
     ;; Mode disabled
     (stripspace--clear-virtual-state)
     (remove-hook 'before-save-hook #'stripspace--mode-before-save-hook t)
