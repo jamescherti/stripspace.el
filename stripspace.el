@@ -119,7 +119,7 @@ or a space, such as *Messages* or *Help*. When this option is enabled,
 
 ;;; Variables
 
-(defvar stripspace-before-save-hook-depth -99
+(defvar stripspace-before-save-hook-depth -98
   "Depth for the hook that removes trailing whitespace in `before-save-hook'.
 A negative depth close to -100 (e.g., -99) ensures that this function runs early
 in `before-save-hook', allowing other modifications to occur first.
@@ -134,7 +134,7 @@ For example, the Reformatter package, which reformats buffers, runs during
 `before-save-hook'. Running stripspace beforehand ensures that the column is
 saved before reformatting is applied.")
 
-(defvar stripspace-after-save-hook-depth 99
+(defvar stripspace-after-save-hook-depth 98
   "Depth for the hook that restores the cursor column in `after-save-hook'.
 A positive depth close to 100 (e.g., 99) ensures that this function runs late,
 allowing column restoration to occur after all other post-save processing.
@@ -524,8 +524,7 @@ current tab width settings."
         (add-hook 'before-save-hook #'stripspace--mode-before-save-hook
                   (if (>= emacs-major-version 27)
                       stripspace-before-save-hook-depth
-                    (and (numberp stripspace-before-save-hook-depth)
-                         (> stripspace-before-save-hook-depth 0)))
+                    nil)
                   t)
         (add-hook 'after-save-hook #'stripspace--mode-after-save-hook
                   (if (>= emacs-major-version 27)
