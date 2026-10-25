@@ -5,9 +5,10 @@
 ![License](https://img.shields.io/github/license/jamescherti/stripspace.el)
 ![](https://jamescherti.com/misc/made-for-gnu-emacs.svg)
 
-## Introduction
+- Author: James Cherti <[https://www.jamescherti.com/](https://www.jamescherti.com/)>
+- License: GPL
 
-The **stripspace** Emacs package provides `stripspace-local-mode` and `stripspace-global-mode`, which automatically removes trailing whitespace and blank lines at the end of the buffer when saving.
+The **[stripspace](https://github.com/jamescherti/stripspace.el)** Emacs package provides `stripspace-local-mode` and `stripspace-global-mode`, which automatically removes trailing whitespace and blank lines at the end of the buffer when saving.
 
 (**Trailing whitespace** refers to any spaces or tabs that appear at the end of a line, beyond the last non-whitespace character. These characters serve no purpose in the content of the file and can cause issues with version control, formatting, or code consistency. Removing trailing whitespace helps maintain clean, readable files.)
 
