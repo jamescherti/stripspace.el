@@ -273,7 +273,8 @@ in a buffer-local variable and deletes any trailing whitespace."
 This function is triggered by `after-save-hook'. It attempts to move the cursor
 back to its original column."
   (when (bound-and-true-p stripspace-local-mode)
-    (when stripspace-restore-column
+    (when (and stripspace-restore-column
+               (not (bound-and-true-p ghostcursor-local-mode)))
       (unwind-protect
           (let ((buffer-unchanged (and (not (buffer-modified-p))
                                        (equal stripspace--modified-tick
