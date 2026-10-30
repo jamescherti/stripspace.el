@@ -49,7 +49,7 @@ compile: cask
 package-lint: cask
 	cask exec emacs -Q --batch -L . \
 		--eval ${INIT_PACKAGES} \
-		-f package-lint-batch-and-exit stripspace.el
+		-f package-lint-batch-and-exit $$(cask files)
 
 .PHONY: test
 test: cask
